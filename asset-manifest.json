@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/Aditiya_Saini/static/css/main.9043fc15.css",
+    "main.css": "/Aditiya_Saini/static/css/main.f3f00993.css",
     "main.js": "/Aditiya_Saini/static/js/main.4fa21bb5.js",
     "index.html": "/Aditiya_Saini/index.html",
-    "main.9043fc15.css.map": "/Aditiya_Saini/static/css/main.9043fc15.css.map",
+    "main.f3f00993.css.map": "/Aditiya_Saini/static/css/main.f3f00993.css.map",
     "main.4fa21bb5.js.map": "/Aditiya_Saini/static/js/main.4fa21bb5.js.map"
   },
   "entrypoints": [
-    "static/css/main.9043fc15.css",
+    "static/css/main.f3f00993.css",
     "static/js/main.4fa21bb5.js"
   ]
 }
