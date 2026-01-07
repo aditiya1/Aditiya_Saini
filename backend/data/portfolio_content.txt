@@ -1,0 +1,28 @@
+ABOUT ADITIYA SAINI (ADI)
+
+I'm a passionate Full Stack Developer with expertise in building modern web applications and AI-powered solutions. Currently working as a Junior Full Stack Developer at Global Travel Xperts, where I develop and enhance internal web applications using cutting-edge technologies.
+
+My journey in technology started with a Bachelor's in Electronics Engineering, which gave me a strong foundation in programming and system design. I then pursued a Master's in Information Technology at RMIT University, where I honed my skills in software and web development through hands-on projects and real-world collaborations.
+
+I'm particularly passionate about AI-powered solutions, having built complete chatbot pipelines with semantic chunking, vector databases, and retrieval-augmented generation. I love creating interactive analytics dashboards and optimizing system performance to deliver exceptional user experiences.
+
+KEY EXPERTISE AREAS:
+- Full Stack Development: Building end-to-end web applications with modern frameworks
+- AI Integration: Creating intelligent solutions with OpenAI and custom AI systems
+- Performance Optimization: Optimizing applications for speed and scalability
+- UI/UX Design: Designing beautiful and intuitive user interfaces
+
+PROJECTS
+
+AI Chatbot with RAG Pipeline
+An intelligent chatbot powered by Retrieval-Augmented Generation that answers questions about my portfolio, projects, resume, and contact information. Built with React, Python, FastAPI, OpenAI API, ChromaDB, and vector embeddings. Features include semantic search, RAG pipeline with document chunking, real-time chat interface, context-aware responses, and vector database integration.
+
+CONTACT INFORMATION
+
+Email: aditiyasaini15@gmail.com
+Phone: 0433924783
+LinkedIn: https://www.linkedin.com/in/aditiya-saini
+GitHub: https://github.com/Adi1-git
+
+I'm always open to discussing new projects, creative ideas, or opportunities to be part of your visions. Feel free to reach out!
+

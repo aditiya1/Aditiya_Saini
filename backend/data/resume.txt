@@ -1,0 +1,55 @@
+ADITIYA SAINI - FULL STACK DEVELOPER
+
+PROFESSIONAL SUMMARY
+I'm a passionate Full Stack Developer with expertise in building modern web applications and AI-powered solutions. Currently working as a Junior Full Stack Developer at Global Travel Xperts, where I develop and enhance internal web applications using cutting-edge technologies.
+
+EXPERIENCE
+
+Junior Full Stack Developer | Global Travel Xperts | Jun 2025 – Current
+- Developed and enhanced internal web applications using HTML, CSS, JavaScript, React, PHP, WordPress
+- Built AI-powered solutions using OpenAI, Cursor, Docker, including data analysis tools and call-analysis automation
+- Designed and implemented a complete AI chatbot pipeline with semantic chunking, vector generation, and retrieval-augmented response generation
+- Created interactive analytics dashboards for operational teams, enabling real-time insights into sales, performance metrics, and call trends
+- Collaborated in an Agile environment, participating in sprints, stand-ups, and code reviews
+- Debugged and optimized front- and back-end components to reduce errors and enhance platform stability
+
+Junior Web Developer | AK Smart Solution | Sep 2024 – May 2025
+- Contributed to the design and development of internal web applications using HTML, CSS, PHP, React, and WordPress
+- Collaborated in an Agile development environment, participating in sprint planning, daily stand-ups, and code reviews
+- Assisted in debugging and optimizing both front-end and back-end components, contributing to a 30% reduction in system downtime
+- Helped implement responsive design practices, ensuring seamless performance across devices and browsers
+- Supported API integration and enhancement of cloud-based services to boost application scalability and reliability
+
+Software Developer (Internship) | Early Build | Feb 2023 – Jun 2023 | Melbourne, Australia
+- Engineered a backend system that processed geospatial and demographic data, improving data preparation efficiency
+- Developed interactive visualizations that speed up site analysis by 30%
+- Optimized website performance, reducing page load time by 25% across mobile and desktop
+- Containerized microservices with Docker, increasing deployment efficiency by 40% on Google Cloud Run
+- Maintained high code quality removing bugs and used Git for version control, reducing the development cycle by 20%
+- Met 100% of project goals and stakeholder expectations, demonstrating effective problem solving and project management
+
+EDUCATION
+
+Master of Information Technology | Royal Melbourne Institute of Technology (RMIT) University | Mar 2021 – Dec 2023
+- Developed expertise in software and web development through hands-on projects and coursework
+- Completed industry-focused projects, collaborating with a company on a real-time project to build a cloud platform for real estate site evaluation
+
+Bachelor of Electronics Engineering | UPES, India | Jul 2015 – Dec 2019
+- Built a strong foundation in programming, data structures, and networking through hands-on projects
+- Developed IoT-based applications, integrating software development with cloud technologies
+
+TECHNICAL SKILLS
+
+Frontend Development: HTML, CSS, JavaScript, React, Bootstrap, Responsive Design
+Backend & Languages: PHP, Python, Java, SQL, Dart
+Tools & Technologies: Git & GitHub, Docker, WordPress, MySQL, AWS, GCP
+AI & Other: OpenAI Integration, AI Tools, Figma, JIRA, Agile Methodologies, Unit Testing
+
+CERTIFICATIONS
+- Agile Methodology Job Simulation (Cognizant) - Nov 2023
+- Introduction to Front-End Development (Coursera - Meta) - Jan 2024
+- Programming with JavaScript (Coursera - Meta) - Feb 2024
+- HTML and CSS in depth (Coursera - Meta) - Apr 2024
+- Generative AI (Codecademy) - Mar 2025 – Current
+- Full-Stack Engineer (Codecademy) - Jan 2025 – Current
+

@@ -5,6 +5,7 @@
   "homepage": "https://aditiya1.github.io/Aditiya_Saini",
   "private": true,
   "dependencies": {
+    "axios": "^1.13.2",
     "framer-motion": "^10.16.16",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

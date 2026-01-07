@@ -89,7 +89,7 @@ const Contact = () => {
             transition={{ duration: 0.6 }}
             className="contact-info"
           >
-            <h3>Let's Collaborate</h3>
+            <h3>Let's Connect</h3>
             <p>
               I'm always open to discussing new projects, creative ideas, or opportunities 
               to be part of your visions. Feel free to reach out!
