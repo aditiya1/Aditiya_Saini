@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Aditiya_Saini/static/css/main.9043fc15.css",
+    "main.js": "/Aditiya_Saini/static/js/main.e7e5bd25.js",
+    "index.html": "/Aditiya_Saini/index.html",
+    "main.9043fc15.css.map": "/Aditiya_Saini/static/css/main.9043fc15.css.map",
+    "main.e7e5bd25.js.map": "/Aditiya_Saini/static/js/main.e7e5bd25.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.9043fc15.css",
+    "static/js/main.e7e5bd25.js"
+  ]
+}
