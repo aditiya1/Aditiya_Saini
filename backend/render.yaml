@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: portfolio-chatbot-backend
+    env: python
+    buildCommand: chmod +x build.sh && ./build.sh
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://aditiya1.github.io,https://aditiya1.github.io/Aditiya_Saini
+      - key: PORT
+        value: 10000
+

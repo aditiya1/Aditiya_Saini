@@ -121,9 +121,11 @@ def initialize_knowledge_base():
 if __name__ == "__main__":
     try:
         initialize_knowledge_base()
+        print("\n✓ Knowledge base initialization completed successfully!")
     except Exception as e:
-        print(f"Error initializing knowledge base: {str(e)}")
+        print(f"\n✗ Error initializing knowledge base: {str(e)}")
         import traceback
         traceback.print_exc()
+        print("\n⚠ Build will fail. Please check the error above and fix before deploying.")
         sys.exit(1)
 

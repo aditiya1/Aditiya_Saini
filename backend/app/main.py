@@ -11,7 +11,7 @@ load_dotenv()
 app = FastAPI(title="Portfolio Chatbot API", version="1.0.0")
 
 # CORS configuration
-cors_origins_env = os.getenv("CORS_ORIGINS", "")
+# Default origins for local development and GitHub Pages
 origins = [
     "http://localhost:3000",
     "http://localhost:3001",
@@ -19,9 +19,15 @@ origins = [
     "https://aditiya1.github.io/Aditiya_Saini",
 ]
 
-# Add additional origins from environment variable
+# Add additional origins from environment variable (for Render deployment)
+cors_origins_env = os.getenv("CORS_ORIGINS", "")
 if cors_origins_env:
     origins.extend([origin.strip() for origin in cors_origins_env.split(",") if origin.strip()])
+
+# Add Render URL if RENDER_EXTERNAL_URL is set (Render automatically sets this)
+render_url = os.getenv("RENDER_EXTERNAL_URL", "")
+if render_url:
+    origins.append(render_url)
 
 app.add_middleware(
     CORSMiddleware,
