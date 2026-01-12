@@ -45,7 +45,7 @@ const Hero = () => {
             className="hero-avatar"
           >
             <div className="avatar-circle">
-              <span>AS</span>
+              <img src="/profile.png" alt="Adi" className="avatar-image" />
             </div>
           </motion.div>
 
