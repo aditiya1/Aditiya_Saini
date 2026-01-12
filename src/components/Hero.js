@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import profileImage from '../assets/profile.png';
 import './Hero.css';
 
 const Hero = () => {
@@ -45,7 +46,7 @@ const Hero = () => {
             className="hero-avatar"
           >
             <div className="avatar-circle">
-              <img src="/profile.png" alt="Adi" className="avatar-image" />
+              <img src={profileImage} alt="Adi" className="avatar-image" />
             </div>
           </motion.div>
 
