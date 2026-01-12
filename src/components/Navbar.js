@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -7,13 +7,14 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
       
       // Only track active section on home page
-      if (location.hash === '' || location.hash === '#/') {
+      if (location.pathname === '/') {
         const sections = ['home', 'about', 'experience', 'education', 'skills', 'certifications', 'projects', 'contact'];
         const scrollPosition = window.scrollY + 100;
 
@@ -43,15 +44,17 @@ const Navbar = () => {
     }
   };
 
-  const handleNavClick = (item) => {
-    if (location.hash === '' || location.hash === '#/') {
-      // On home page, use scroll behavior
+  const handleNavClick = (item, e) => {
+    e.preventDefault();
+    setIsMobileMenuOpen(false);
+    
+    if (location.pathname === '/') {
+      // On home page, scroll to section
       scrollToSection(item.id);
     } else {
-      // On other pages, navigate to home first
-      window.location.href = `/#${item.id}`;
+      // On other pages (like project detail), navigate to home with section in state
+      navigate('/', { state: { scrollTo: item.id } });
     }
-    setIsMobileMenuOpen(false);
   };
 
   const navItems = [
@@ -76,12 +79,11 @@ const Navbar = () => {
           {navItems.map((item) => (
             <li key={item.id} className="nav-item">
               <a
-                href={`#${item.id}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleNavClick(item);
-                }}
-                className={`nav-link ${activeSection === item.id ? 'active' : ''}`}
+                href={location.pathname === '/' ? `#${item.id}` : `/#${item.id}`}
+                onClick={(e) => handleNavClick(item, e)}
+                className={`nav-link ${
+                  location.pathname === '/' && activeSection === item.id ? 'active' : ''
+                }`}
               >
                 {item.label}
               </a>

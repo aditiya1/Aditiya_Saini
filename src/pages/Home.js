@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Hero from '../components/Hero';
 import About from '../components/About';
 import Experience from '../components/Experience';
@@ -10,6 +11,22 @@ import Contact from '../components/Contact';
 
 function Home() {
   const [activeSection, setActiveSection] = useState('home');
+  const location = useLocation();
+
+  useEffect(() => {
+    // Scroll to section if navigated from another page
+    if (location.state && location.state.scrollTo) {
+      const sectionId = location.state.scrollTo;
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+      // Clear the state
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   useEffect(() => {
     const handleScroll = () => {
