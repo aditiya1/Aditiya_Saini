@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/Aditiya_Saini/static/css/main.a52e68be.css",
-    "main.js": "/Aditiya_Saini/static/js/main.06e09902.js",
+    "main.js": "/Aditiya_Saini/static/js/main.2199c6cd.js",
     "static/media/profile.png": "/Aditiya_Saini/static/media/profile.dbd49b5f210790d09656.png",
     "static/media/chatbot-logo.png": "/Aditiya_Saini/static/media/chatbot-logo.878d8e006a2cdc8baf88.png",
     "index.html": "/Aditiya_Saini/index.html",
     "main.a52e68be.css.map": "/Aditiya_Saini/static/css/main.a52e68be.css.map",
-    "main.06e09902.js.map": "/Aditiya_Saini/static/js/main.06e09902.js.map"
+    "main.2199c6cd.js.map": "/Aditiya_Saini/static/js/main.2199c6cd.js.map"
   },
   "entrypoints": [
     "static/css/main.a52e68be.css",
-    "static/js/main.06e09902.js"
+    "static/js/main.2199c6cd.js"
   ]
 }
