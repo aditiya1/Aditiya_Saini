@@ -172,6 +172,84 @@
   color: #764ba2;
 }
 
+/* Coming Soon Card Styles */
+.coming-soon-card {
+  border: 2px dashed rgba(102, 126, 234, 0.3);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.coming-soon-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+  }
+}
+
+.coming-soon-card:hover {
+  border-color: rgba(102, 126, 234, 0.5);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+.coming-soon-image {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+.coming-soon-placeholder {
+  background: transparent;
+  color: var(--primary-color);
+}
+
+.coming-soon-placeholder svg {
+  width: 100px;
+  height: 100px;
+  opacity: 0.6;
+}
+
+.coming-soon-content {
+  text-align: center;
+  justify-content: center;
+}
+
+.coming-soon-title {
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.coming-soon-description {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.coming-soon-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+  color: var(--primary-color);
+}
+
+.coming-soon-icon svg {
+  width: 32px;
+  height: 32px;
+  opacity: 0.7;
+}
+
 @media (max-width: 768px) {
   .projects-grid {
     grid-template-columns: 1fr;

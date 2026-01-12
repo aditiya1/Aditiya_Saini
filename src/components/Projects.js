@@ -75,6 +75,48 @@ const Projects = () => {
               </div>
             </motion.div>
           ))}
+          
+          {/* More Projects Coming Soon Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: projects.length * 0.1 }}
+            className="project-card coming-soon-card"
+          >
+            <div className="project-image-wrapper coming-soon-image">
+              <div className="project-image-placeholder coming-soon-placeholder">
+                <motion.svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  initial={{ rotate: 0 }}
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </motion.svg>
+              </div>
+            </div>
+            <div className="project-content coming-soon-content">
+              <h3 className="project-card-title coming-soon-title">More Projects Coming Soon</h3>
+              <p className="project-card-description coming-soon-description">
+                I'm constantly working on new projects and exciting innovations. Stay tuned for more amazing solutions coming your way!
+              </p>
+              <div className="coming-soon-icon">
+                <motion.div
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </motion.div>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>
