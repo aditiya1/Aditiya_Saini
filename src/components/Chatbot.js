@@ -109,15 +109,15 @@ const Chatbot = () => {
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </motion.svg>
           ) : (
-            <motion.img
+            <motion.div
               key="open"
-              src={chatbotLogo}
-              alt="Chatbot"
               initial={{ rotate: 90, opacity: 0 }}
               animate={{ rotate: 0, opacity: 1 }}
               exit={{ rotate: -90, opacity: 0 }}
-              className="chatbot-logo-icon"
-            />
+              className="chatbot-toggle-logo-container"
+            >
+              <img src={chatbotLogo} alt="Chatbot" className="chatbot-toggle-logo" />
+            </motion.div>
           )}
         </AnimatePresence>
       </motion.button>
