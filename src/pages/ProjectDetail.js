@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { projects } from '../data/projects';
@@ -7,6 +7,11 @@ import './ProjectDetail.css';
 const ProjectDetail = () => {
   const { projectId } = useParams();
   const project = projects.find(p => p.id === projectId);
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [projectId]);
 
   if (!project) {
     return (
