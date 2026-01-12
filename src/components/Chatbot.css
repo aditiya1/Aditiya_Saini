@@ -27,6 +27,12 @@
   height: 24px;
 }
 
+.chatbot-toggle img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
 .chatbot-container {
   position: fixed;
   bottom: 110px;
@@ -70,6 +76,19 @@
 .chatbot-avatar svg {
   width: 24px;
   height: 24px;
+}
+
+.chatbot-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.chatbot-logo-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
 }
 
 .chatbot-header h3 {
@@ -300,6 +319,11 @@
   .chatbot-toggle svg {
     width: 20px;
     height: 20px;
+  }
+
+  .chatbot-toggle img {
+    width: 28px;
+    height: 28px;
   }
 }
 

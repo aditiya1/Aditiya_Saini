@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { chatAPI } from '../services/api';
+import chatbotLogo from '../assets/chatbot-logo.png';
 import './Chatbot.css';
 
 const Chatbot = () => {
@@ -108,18 +109,15 @@ const Chatbot = () => {
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </motion.svg>
           ) : (
-            <motion.svg
+            <motion.img
               key="open"
+              src={chatbotLogo}
+              alt="Chatbot"
               initial={{ rotate: 90, opacity: 0 }}
               animate={{ rotate: 0, opacity: 1 }}
               exit={{ rotate: -90, opacity: 0 }}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-            </motion.svg>
+              className="chatbot-logo-icon"
+            />
           )}
         </AnimatePresence>
       </motion.button>
@@ -137,9 +135,7 @@ const Chatbot = () => {
             <div className="chatbot-header">
               <div className="chatbot-header-content">
                 <div className="chatbot-avatar">
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                  </svg>
+                  <img src={chatbotLogo} alt="Chatbot Logo" className="chatbot-avatar-img" />
                 </div>
                 <div>
                   <h3>Adi's AI Assistant</h3>
