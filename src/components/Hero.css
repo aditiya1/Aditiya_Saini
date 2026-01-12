@@ -6,6 +6,7 @@
   position: relative;
   overflow: hidden;
   padding: 0;
+  z-index: 0;
 }
 
 .hero-background {
@@ -50,6 +51,7 @@
   padding: 0 2rem;
   width: 100%;
   text-align: center;
+  isolation: isolate;
 }
 
 .hero-content {
@@ -76,6 +78,7 @@
   animation: float 3s ease-in-out infinite;
   overflow: hidden;
   position: relative;
+  z-index: 1;
 }
 
 .avatar-image {
