@@ -77,7 +77,7 @@ To make the Task Manager available as a live demo for portfolio visitors:
 
 ## Tech Stack
 
-- .NET 10
+- .NET 8
 - ASP.NET Core Web API
 - Blazor Server
 - Entity Framework Core + SQLite

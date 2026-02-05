@@ -12,6 +12,7 @@ services:
     rootDir: task-manager/TaskManager.API
     dockerfilePath: task-manager/TaskManager.API/Dockerfile
     dockerContext: task-manager/TaskManager.API
+    healthCheckPath: /health
     envVars:
       - key: Cors__AllowedOrigins
         value: "*"  # Allow all for demo; Blazor Server makes server-side requests
@@ -23,6 +24,7 @@ services:
     rootDir: task-manager/TaskManager.Blazor
     dockerfilePath: task-manager/TaskManager.Blazor/Dockerfile
     dockerContext: task-manager/TaskManager.Blazor
+    healthCheckPath: /
     envVars:
       - key: ApiBaseUrl
         sync: false  # Set to https://task-manager-api.onrender.com after deploy

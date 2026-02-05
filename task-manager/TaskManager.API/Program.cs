@@ -39,6 +39,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
+app.MapGet("/health", () => Results.Ok());
 
 using (var scope = app.Services.CreateScope())
 {
