@@ -3,16 +3,26 @@ using TaskManager.API.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
+
 builder.Services.AddDbContext<TaskDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=taskmanager.db"));
 
+var corsOrigins = builder.Configuration["Cors:AllowedOrigins"]
+    ?? "https://localhost:5002,https://localhost:5003,http://localhost:5002";
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("https://localhost:5002", "https://localhost:5003", "http://localhost:5002")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+        if (corsOrigins == "*")
+            policy.AllowAnyOrigin();
+        else
+            policy.WithOrigins(corsOrigins.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+        policy.AllowAnyHeader().AllowAnyMethod();
     });
 });
 

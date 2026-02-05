@@ -1,0 +1,28 @@
+# Task Manager deployment for Render.com
+# 1. Connect this repo to Render and apply this Blueprint
+# 2. After both services deploy, set ApiBaseUrl on task-manager-blazor to your API URL
+#    (e.g. https://task-manager-api.onrender.com)
+# 3. Update projects.js liveUrl with your Blazor URL for the portfolio link
+
+services:
+  - type: web
+    name: task-manager-api
+    runtime: docker
+    plan: free
+    rootDir: task-manager/TaskManager.API
+    dockerfilePath: task-manager/TaskManager.API/Dockerfile
+    dockerContext: task-manager/TaskManager.API
+    envVars:
+      - key: Cors__AllowedOrigins
+        value: "*"  # Allow all for demo; Blazor Server makes server-side requests
+
+  - type: web
+    name: task-manager-blazor
+    runtime: docker
+    plan: free
+    rootDir: task-manager/TaskManager.Blazor
+    dockerfilePath: task-manager/TaskManager.Blazor/Dockerfile
+    dockerContext: task-manager/TaskManager.Blazor
+    envVars:
+      - key: ApiBaseUrl
+        sync: false  # Set to https://task-manager-api.onrender.com after deploy
