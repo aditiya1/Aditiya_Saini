@@ -10,8 +10,8 @@ services:
     runtime: docker
     plan: free
     rootDir: task-manager/TaskManager.API
-    dockerfilePath: task-manager/TaskManager.API/Dockerfile
-    dockerContext: task-manager/TaskManager.API
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     healthCheckPath: /health
     envVars:
       - key: Cors__AllowedOrigins
@@ -22,8 +22,8 @@ services:
     runtime: docker
     plan: free
     rootDir: task-manager/TaskManager.Blazor
-    dockerfilePath: task-manager/TaskManager.Blazor/Dockerfile
-    dockerContext: task-manager/TaskManager.Blazor
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     healthCheckPath: /
     envVars:
       - key: ApiBaseUrl
