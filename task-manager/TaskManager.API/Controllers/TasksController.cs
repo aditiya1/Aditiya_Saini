@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaskManager.API.Data;
 using TaskManager.API.Models;
+using TaskStatus = TaskManager.API.Models.TaskStatus;
 
 namespace TaskManager.API.Controllers;
 
