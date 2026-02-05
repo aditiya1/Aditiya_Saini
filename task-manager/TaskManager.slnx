@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="TaskManager.API/TaskManager.API.csproj" />
+  <Project Path="TaskManager.Blazor/TaskManager.Blazor.csproj" />
+</Solution>

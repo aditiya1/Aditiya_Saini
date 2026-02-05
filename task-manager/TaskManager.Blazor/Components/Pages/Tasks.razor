@@ -1,0 +1,330 @@
+@page "/tasks"
+@rendermode InteractiveServer
+@inject TaskApiService TaskApi
+@inject IJSRuntime JS
+
+<PageTitle>Tasks - Task Manager</PageTitle>
+
+<div class="tasks-container">
+    <div class="tasks-header">
+        <h1>Task Manager</h1>
+        <button class="btn btn-primary" @onclick="OpenCreateModal">
+            <span class="bi bi-plus-lg"></span> New Task
+        </button>
+    </div>
+
+    <div class="tasks-filters">
+        <input type="text" class="form-control search-input" placeholder="Search tasks..."
+               @bind="searchTerm" @bind:event="oninput" @oninput="OnSearchInput" />
+        <select class="form-select filter-select" @bind="statusFilter" @bind:after="LoadTasks">
+            <option value="">All Statuses</option>
+            <option value="0">To Do</option>
+            <option value="1">In Progress</option>
+            <option value="2">Done</option>
+            <option value="3">Cancelled</option>
+        </select>
+        <select class="form-select filter-select" @bind="priorityFilter" @bind:after="LoadTasks">
+            <option value="">All Priorities</option>
+            <option value="0">Low</option>
+            <option value="1">Medium</option>
+            <option value="2">High</option>
+            <option value="3">Urgent</option>
+        </select>
+        <button class="btn btn-outline-secondary" @onclick="LoadTasks">Refresh</button>
+    </div>
+
+    @if (loading)
+    {
+        <div class="loading">Loading tasks...</div>
+    }
+    else if (error != null)
+    {
+        <div class="alert alert-danger">@error</div>
+    }
+    else if (!tasks.Any())
+    {
+        <div class="empty-state">
+            <span class="bi bi-inbox"></span>
+            <p>No tasks yet. Create your first task to get started!</p>
+        </div>
+    }
+    else
+    {
+        <div class="tasks-list">
+            @foreach (var task in tasks)
+            {
+                <div class="task-card @GetStatusClass(task.Status)">
+                    <div class="task-main">
+                        <input type="checkbox" class="task-checkbox" checked="@(task.Status == TaskStatus.Done)"
+                               @onchange="() => ToggleComplete(task)" />
+                        <div class="task-content">
+                            <h3 class="task-title">@task.Title</h3>
+                            @if (!string.IsNullOrEmpty(task.Description))
+                            {
+                                <p class="task-description">@task.Description</p>
+                            }
+                            <div class="task-meta">
+                                <span class="badge @GetPriorityClass(task.Priority)">@task.Priority</span>
+                                <span class="task-date">@task.CreatedAt.ToString("MMM d, yyyy")</span>
+                                @if (task.DueDate.HasValue)
+                                {
+                                    <span class="task-due">Due: @task.DueDate.Value.ToString("MMM d")</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenEditModal(task)" title="Edit">
+                                <span class="bi bi-pencil"></span>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteTask(task)" title="Delete">
+                                <span class="bi bi-trash"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@if (showModal)
+{
+    <div class="modal-backdrop" @onclick="CloseModal"></div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>@(editingTask?.Id == null ? "New Task" : "Edit Task")</h2>
+                <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close"></button>
+            </div>
+            <EditForm Model="formModel" OnValidSubmit="SaveTask">
+                <DataAnnotationsValidator />
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <InputText class="form-control" @bind-Value="formModel.Title" placeholder="Task title" />
+                        <ValidationMessage For="@(() => formModel.Title)" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <InputTextArea class="form-control" @bind-Value="formModel.Description" rows="3" placeholder="Optional description" />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Priority</label>
+                            <InputSelect class="form-select" @bind-Value="formModel.Priority">
+                                @foreach (var p in Enum.GetValues<TaskPriority>())
+                                {
+                                    <option value="@((int)p)">@p</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Status</label>
+                            <InputSelect class="form-select" @bind-Value="formModel.Status">
+                                @foreach (var s in Enum.GetValues<TaskStatus>())
+                                {
+                                    <option value="@((int)s)">@s</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Due Date</label>
+                        <InputDate class="form-control" @bind-Value="formModel.DueDate" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">@(editingTask?.Id == null ? "Create" : "Save")</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<style>
+    .tasks-container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+    .tasks-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .tasks-header h1 { margin: 0; font-size: 1.75rem; }
+    .tasks-filters { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .search-input { flex: 1; min-width: 200px; }
+    .filter-select { width: auto; min-width: 140px; }
+    .loading, .empty-state { text-align: center; padding: 3rem; color: #6c757d; }
+    .empty-state .bi { font-size: 3rem; display: block; margin-bottom: 1rem; opacity: 0.5; }
+    .tasks-list { display: flex; flex-direction: column; gap: 0.75rem; }
+    .task-card { border: 1px solid #dee2e6; border-radius: 8px; padding: 1rem; background: #fff; transition: box-shadow 0.2s; }
+    .task-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .task-card.done .task-title { text-decoration: line-through; color: #6c757d; }
+    .task-main { display: flex; align-items: flex-start; gap: 1rem; }
+    .task-checkbox { margin-top: 0.35rem; width: 1.25rem; height: 1.25rem; cursor: pointer; }
+    .task-content { flex: 1; min-width: 0; }
+    .task-title { margin: 0 0 0.25rem 0; font-size: 1.1rem; }
+    .task-description { margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #6c757d; }
+    .task-meta { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    .task-actions { display: flex; gap: 0.25rem; }
+    .badge { font-size: 0.7rem; padding: 0.2rem 0.5rem; }
+    .badge.Low { background: #e9ecef; color: #495057; }
+    .badge.Medium { background: #cce5ff; color: #004085; }
+    .badge.High { background: #fff3cd; color: #856404; }
+    .badge.Urgent { background: #f8d7da; color: #721c24; }
+    .task-date, .task-due { font-size: 0.8rem; color: #6c757d; }
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1040; }
+    .modal-dialog { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 1050; padding: 1rem; }
+    .modal-content { background: #fff; border-radius: 8px; max-width: 500px; width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid #dee2e6; }
+    .modal-header h2 { margin: 0; font-size: 1.25rem; }
+    .modal-body { padding: 1.25rem; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 0.5rem; padding: 1rem 1.25rem; border-top: 1px solid #dee2e6; }
+    .btn-close { background: none; border: none; font-size: 1.25rem; cursor: pointer; opacity: 0.5; }
+    .btn-close:hover { opacity: 1; }
+</style>
+
+@code {
+    private List<TaskItem> tasks = [];
+    private bool loading = true;
+    private string? error;
+    private string searchTerm = "";
+    private string statusFilter = "";
+    private string priorityFilter = "";
+    private bool showModal;
+    private TaskItem? editingTask;
+    private TaskFormModel formModel = new();
+    private CancellationTokenSource? _searchCts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTasks();
+    }
+
+    private async Task LoadTasks()
+    {
+        loading = true;
+        error = null;
+        StateHasChanged();
+
+        try
+        {
+            var status = string.IsNullOrEmpty(statusFilter) ? null : (TaskStatus?)int.Parse(statusFilter);
+            var priority = string.IsNullOrEmpty(priorityFilter) ? null : (TaskPriority?)int.Parse(priorityFilter);
+            tasks = await TaskApi.GetTasksAsync(status, priority, string.IsNullOrWhiteSpace(searchTerm) ? null : searchTerm);
+        }
+        catch (Exception ex)
+        {
+            error = $"Failed to load tasks. Make sure the API is running at http://localhost:5000. Error: {ex.Message}";
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnSearchInput()
+    {
+        _searchCts?.Cancel();
+        _searchCts = new CancellationTokenSource();
+        try
+        {
+            await Task.Delay(400, _searchCts.Token);
+            await LoadTasks();
+        }
+        catch (OperationCanceledException) { }
+    }
+
+    private void OpenCreateModal()
+    {
+        editingTask = null;
+        formModel = new TaskFormModel { Title = "", Description = "", Priority = TaskPriority.Medium, Status = TaskStatus.ToDo };
+        showModal = true;
+    }
+
+    private void OpenEditModal(TaskItem task)
+    {
+        editingTask = task;
+        formModel = new TaskFormModel
+        {
+            Title = task.Title,
+            Description = task.Description ?? "",
+            Priority = task.Priority,
+            Status = task.Status,
+            DueDate = task.DueDate
+        };
+        showModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+        editingTask = null;
+    }
+
+    private async Task SaveTask()
+    {
+        if (string.IsNullOrWhiteSpace(formModel.Title))
+            return;
+
+        try
+        {
+            if (editingTask?.Id != null)
+            {
+                await TaskApi.UpdateTaskAsync(editingTask.Id, new UpdateTaskRequest(
+                    formModel.Title, formModel.Description, formModel.Priority, formModel.Status, formModel.DueDate));
+            }
+            else
+            {
+                await TaskApi.CreateTaskAsync(new CreateTaskRequest(
+                    formModel.Title, formModel.Description, formModel.Priority, formModel.Status, formModel.DueDate));
+            }
+            CloseModal();
+            await LoadTasks();
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+
+    private async Task ToggleComplete(TaskItem task)
+    {
+        var newStatus = task.Status == TaskStatus.Done ? TaskStatus.ToDo : TaskStatus.Done;
+        try
+        {
+            await TaskApi.UpdateStatusAsync(task.Id, newStatus);
+            await LoadTasks();
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+
+    private async Task DeleteTask(TaskItem task)
+    {
+        if (!await JS.InvokeAsync<bool>("confirm", $"Delete \"{task.Title}\"?"))
+            return;
+
+        try
+        {
+            await TaskApi.DeleteTaskAsync(task.Id);
+            await LoadTasks();
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+
+    private static string GetStatusClass(TaskStatus status) => status.ToString().ToLowerInvariant().Replace(" ", "");
+    private static string GetPriorityClass(TaskPriority p) => p.ToString();
+
+    private class TaskFormModel
+    {
+        [Required(ErrorMessage = "Title is required")]
+        [MaxLength(200)]
+        public string Title { get; set; } = "";
+        public string Description { get; set; } = "";
+        public TaskPriority Priority { get; set; } = TaskPriority.Medium;
+        public TaskStatus Status { get; set; } = TaskStatus.ToDo;
+        public DateTime? DueDate { get; set; }
+    }
+}
