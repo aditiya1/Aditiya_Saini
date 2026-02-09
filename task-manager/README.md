@@ -64,6 +64,62 @@ To make the Task Manager available as a live demo for portfolio visitors:
 
 **Note:** Render's free tier may spin down services after inactivity. The first request after idle can take 30–60 seconds to wake up.
 
+## API Unavailable – Diagnostic Steps
+
+If the Blazor app shows "API unavailable" or "Demo mode", follow these steps to diagnose:
+
+### 1. Verify the API service exists and is running
+
+1. Go to [Render Dashboard](https://dashboard.render.com) → **task-manager-api**
+2. Check **Status**: should be "Live" (green). If "Suspended" or "Failed", the service is down.
+3. Note the **URL** shown (e.g. `https://task-manager-api-xxxx.onrender.com`) – Render may add a suffix; this is your actual API URL.
+
+### 2. Test the API URL directly
+
+In a browser or terminal, try:
+
+```bash
+# Health check (should return 200 OK)
+curl -i https://YOUR-API-URL/health
+
+# List tasks (should return JSON array)
+curl https://YOUR-API-URL/api/tasks
+```
+
+Replace `YOUR-API-URL` with the actual URL from Render (e.g. `https://task-manager-api-xxxx.onrender.com`).
+
+- **404 "Not Found"**: Usually means the **API service doesn't exist** at that URL. In Render Dashboard, check:
+  - Do you see **task-manager-api** in your services list?
+  - If not: deploy it via **Blueprint** (New → Blueprint → select repo) or create it manually.
+  - If yes: click it and copy the **exact URL** from the service overview (Render may use a different URL than `task-manager-api.onrender.com`).
+- **502 / 503**: Service is starting (cold start). Wait 30–60 seconds and retry.
+- **Connection refused / timeout**: Service may be down or sleeping. Go to Render → API service → **Manual Deploy** to wake it.
+
+### 3. Point the Blazor app to the correct API URL
+
+1. In Render → **task-manager-blazor** → **Environment**
+2. Set `ApiBaseUrl` to the **exact** API URL from step 1 (no trailing slash)
+3. Click **Save** → **Manual Deploy** → **Deploy latest commit**
+
+### 4. Check Render logs
+
+1. Render → **task-manager-api** → **Logs**
+2. Look for:
+   - **Build errors**: Fix in code and redeploy.
+   - **Runtime errors**: Startup crash, DB issues, etc.
+   - **"Listening on"**: App started successfully.
+
+### 5. Check config and environment
+
+- Ensure `render.yaml` (or your repo root) has `rootDir: task-manager/TaskManager.API` for the API.
+- Confirm the API Dockerfile is in `task-manager/TaskManager.API/` and builds correctly.
+
+### 6. Test locally
+
+1. Run the API locally: `cd task-manager/TaskManager.API && dotnet run`
+2. Open `http://localhost:5000/health` and `http://localhost:5000/api/tasks`
+3. If they work locally, the API code is fine; the issue is likely deployment or URL config on Render.
+
 ## API Endpoints
 
 | Method | Endpoint | Description |

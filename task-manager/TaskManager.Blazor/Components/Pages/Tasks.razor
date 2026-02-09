@@ -5,42 +5,40 @@
 
 <PageTitle>Tasks - Task Manager</PageTitle>
 
-<div class="tasks-container">
-    <div class="tasks-header">
+<div class="kanban-container">
+    <div class="kanban-header">
         <h1>Task Manager</h1>
-        <button class="btn btn-primary" @onclick="OpenCreateModal">
-            <span class="bi bi-plus-lg"></span> New Task
-        </button>
-    </div>
-
-    <div class="tasks-filters">
-        <input type="text" class="form-control search-input" placeholder="Search tasks..."
-               @bind="searchTerm" @bind:event="oninput" @bind:after="OnSearchInput" />
-        <select class="form-select filter-select" @bind="statusFilter" @bind:after="LoadTasks">
-            <option value="">All Statuses</option>
-            <option value="0">To Do</option>
-            <option value="1">In Progress</option>
-            <option value="2">Done</option>
-            <option value="3">Cancelled</option>
-        </select>
-        <select class="form-select filter-select" @bind="priorityFilter" @bind:after="LoadTasks">
-            <option value="">All Priorities</option>
-            <option value="0">Low</option>
-            <option value="1">Medium</option>
-            <option value="2">High</option>
-            <option value="3">Urgent</option>
-        </select>
-        <button class="btn btn-outline-secondary" @onclick="LoadTasks">Refresh</button>
+        <div class="kanban-header-actions">
+            <div class="search-box">
+                <span class="bi bi-search"></span>
+                <input type="text" placeholder="Search tasks..."
+                       @bind="searchTerm" @bind:event="oninput" @bind:after="OnSearchInput" />
+            </div>
+            <select class="filter-select" @bind="priorityFilter" @bind:after="LoadTasks">
+                <option value="">All Priorities</option>
+                <option value="0">Low</option>
+                <option value="1">Medium</option>
+                <option value="2">High</option>
+                <option value="3">Urgent</option>
+            </select>
+            <button class="btn btn-primary" @onclick="OpenCreateModal">
+                <span class="bi bi-plus-lg"></span> Add Task
+            </button>
+            <button class="btn btn-ghost" @onclick="LoadTasks" title="Refresh">
+                <span class="bi bi-arrow-clockwise"></span>
+            </button>
+        </div>
     </div>
 
     @if (TaskApi.IsUsingFallback)
     {
-        <div class="alert alert-info mb-3">Demo mode: API unavailable. Tasks are stored in memory for this session.</div>
+        <div class="alert alert-info">Demo mode: API unavailable. Tasks are stored in memory for this session.</div>
     }
     @if (error != null)
     {
-        <div class="alert alert-danger mb-3">@error</div>
+        <div class="alert alert-danger">@error</div>
     }
+
     @if (loading)
     {
         <div class="loading">Loading tasks...</div>
@@ -48,42 +46,57 @@
     else if (!tasks.Any())
     {
         <div class="empty-state">
-            <span class="bi bi-inbox"></span>
+            <span class="bi bi-kanban"></span>
             <p>No tasks yet. Create your first task to get started!</p>
+            <button class="btn btn-primary" @onclick="OpenCreateModal">Add Task</button>
         </div>
     }
     else
     {
-        <div class="tasks-list">
-            @foreach (var task in tasks)
+        <div class="kanban-board">
+            @foreach (var status in Enum.GetValues<TaskStatus>())
             {
-                <div class="task-card @GetStatusClass(task.Status)">
-                    <div class="task-main">
-                        <input type="checkbox" class="task-checkbox" checked="@(task.Status == TaskStatus.Done)"
-                               @onchange="() => ToggleComplete(task)" />
-                        <div class="task-content">
-                            <h3 class="task-title">@task.Title</h3>
-                            @if (!string.IsNullOrEmpty(task.Description))
-                            {
-                                <p class="task-description">@task.Description</p>
-                            }
-                            <div class="task-meta">
-                                <span class="badge @GetPriorityClass(task.Priority)">@task.Priority</span>
-                                <span class="task-date">@task.CreatedAt.ToString("MMM d, yyyy")</span>
-                                @if (task.DueDate.HasValue)
-                                {
-                                    <span class="task-due">Due: @task.DueDate.Value.ToString("MMM d")</span>
-                                }
+                var columnTasks = GetTasksForStatus(status);
+                <div class="kanban-column @(_dragOverColumn == status ? "drag-over" : "")"
+                     @ondragover="e => { OnDragOver(e); _dragOverColumn = status; }"
+                     @ondrop="e => OnDrop(e, status)"
+                     @ondragenter="e => { _dragOverColumn = status; }"
+                     @ondragleave="e => { _dragOverColumn = null; }">
+                    <div class="kanban-column-header @GetColumnHeaderClass(status)">
+                        <span class="column-title">@GetStatusLabel(status)</span>
+                        <span class="column-count">@columnTasks.Count</span>
+                    </div>
+                    <div class="kanban-column-cards" data-status="@((int)status)">
+                        @foreach (var task in columnTasks)
+                        {
+                            <div class="kanban-card @GetPriorityClass(task.Priority) @(_draggingTaskId == task.Id ? "dragging" : "")"
+                                 draggable="true"
+                                 @ondragstart="e => OnDragStart(e, task)"
+                                 @ondragend="OnDragEnd">
+                                <div class="card-content" @onclick="() => OpenEditModal(task)">
+                                    <h4 class="card-title">@task.Title</h4>
+                                    @if (!string.IsNullOrEmpty(task.Description))
+                                    {
+                                        <p class="card-desc">@task.Description</p>
+                                    }
+                                    <div class="card-meta">
+                                        <span class="badge @GetPriorityClass(task.Priority)">@task.Priority</span>
+                                        @if (task.DueDate.HasValue)
+                                        {
+                                            <span class="card-due"><span class="bi bi-calendar3"></span> @task.DueDate.Value.ToString("MMM d")</span>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="card-actions">
+                                    <button class="btn-icon" @onclick="() => OpenEditModal(task)" @onclick:stopPropagation="true" title="Edit">
+                                        <span class="bi bi-pencil"></span>
+                                    </button>
+                                    <button class="btn-icon Danger" @onclick="() => DeleteTask(task)" @onclick:stopPropagation="true" title="Delete">
+                                        <span class="bi bi-trash"></span>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        <div class="task-actions">
-                            <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenEditModal(task)" title="Edit">
-                                <span class="bi bi-pencil"></span>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteTask(task)" title="Delete">
-                                <span class="bi bi-trash"></span>
-                            </button>
-                        </div>
+                        }
                     </div>
                 </div>
             }
@@ -147,38 +160,66 @@
 }
 
 <style>
-    .tasks-container { max-width: 800px; margin: 0 auto; padding: 2rem; }
-    .tasks-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-    .tasks-header h1 { margin: 0; font-size: 1.75rem; }
-    .tasks-filters { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-    .search-input { flex: 1; min-width: 200px; }
-    .filter-select { width: auto; min-width: 140px; }
-    .loading, .empty-state { text-align: center; padding: 3rem; color: #6c757d; }
+    .kanban-container { padding: 1rem 1.5rem; min-height: calc(100vh - 120px); background: #f4f5f7; }
+    .kanban-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .kanban-header h1 { margin: 0; font-size: 1.5rem; font-weight: 600; color: #172b4d; }
+    .kanban-header-actions { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+    .search-box { display: flex; align-items: center; gap: 0.5rem; background: #fff; border-radius: 6px; padding: 0.5rem 0.75rem; border: 1px solid #dfe1e6; }
+    .search-box .bi { color: #6b778c; font-size: 1rem; }
+    .search-box input { border: none; outline: none; width: 180px; font-size: 0.9rem; }
+    .filter-select { padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid #dfe1e6; font-size: 0.9rem; background: #fff; }
+    .btn-primary { background: #0052cc; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; }
+    .btn-primary:hover { background: #0747a6; }
+    .btn-ghost { background: transparent; border: 1px solid #dfe1e6; border-radius: 6px; padding: 0.5rem; cursor: pointer; color: #6b778c; }
+    .btn-ghost:hover { background: #ebecf0; color: #172b4d; }
+    .loading, .empty-state { text-align: center; padding: 4rem 2rem; color: #6b778c; }
     .empty-state .bi { font-size: 3rem; display: block; margin-bottom: 1rem; opacity: 0.5; }
-    .tasks-list { display: flex; flex-direction: column; gap: 0.75rem; }
-    .task-card { border: 1px solid #dee2e6; border-radius: 8px; padding: 1rem; background: #fff; transition: box-shadow 0.2s; }
-    .task-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-    .task-card.done .task-title { text-decoration: line-through; color: #6c757d; }
-    .task-main { display: flex; align-items: flex-start; gap: 1rem; }
-    .task-checkbox { margin-top: 0.35rem; width: 1.25rem; height: 1.25rem; cursor: pointer; }
-    .task-content { flex: 1; min-width: 0; }
-    .task-title { margin: 0 0 0.25rem 0; font-size: 1.1rem; }
-    .task-description { margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #6c757d; }
-    .task-meta { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
-    .task-actions { display: flex; gap: 0.25rem; }
-    .badge { font-size: 0.7rem; padding: 0.2rem 0.5rem; }
-    .badge.Low { background: #e9ecef; color: #495057; }
-    .badge.Medium { background: #cce5ff; color: #004085; }
-    .badge.High { background: #fff3cd; color: #856404; }
-    .badge.Urgent { background: #f8d7da; color: #721c24; }
-    .task-date, .task-due { font-size: 0.8rem; color: #6c757d; }
+    .empty-state .btn { margin-top: 1rem; }
+
+    .kanban-board { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 1rem; min-height: 400px; align-items: flex-start; }
+    .kanban-column { flex: 0 0 280px; background: #ebecf0; border-radius: 8px; padding: 0.5rem; min-height: 120px; transition: background 0.15s; }
+    .kanban-column.drag-over { background: #c5cae9; }
+    .kanban-column-header { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.75rem; margin-bottom: 0.5rem; border-radius: 6px; font-weight: 600; font-size: 0.9rem; }
+    .kanban-column-header.todo { background: rgba(0,82,204,0.15); color: #0052cc; }
+    .kanban-column-header.inprogress { background: rgba(255,171,0,0.2); color: #b57900; }
+    .kanban-column-header.done { background: rgba(0,135,90,0.15); color: #006644; }
+    .kanban-column-header.cancelled { background: rgba(107,119,140,0.2); color: #5e6c84; }
+    .column-count { background: rgba(0,0,0,0.1); padding: 0.1rem 0.5rem; border-radius: 10px; font-size: 0.8rem; }
+    .kanban-column-cards { display: flex; flex-direction: column; gap: 0.5rem; min-height: 60px; }
+    .kanban-card { background: #fff; border-radius: 8px; padding: 0.75rem; box-shadow: 0 1px 2px rgba(0,0,0,0.08); cursor: grab; transition: box-shadow 0.2s; border-left: 4px solid transparent; }
+    .kanban-card:active { cursor: grabbing; }
+    .kanban-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+    .kanban-card.dragging { opacity: 0.5; }
+    .kanban-card.Low { border-left-color: #97a0af; }
+    .kanban-card.Medium { border-left-color: #0052cc; }
+    .kanban-card.High { border-left-color: #ffab00; }
+    .kanban-card.Urgent { border-left-color: #de350b; }
+    .card-content { margin-bottom: 0.5rem; }
+    .card-title { margin: 0 0 0.25rem 0; font-size: 0.95rem; font-weight: 600; color: #172b4d; line-height: 1.3; }
+    .card-desc { margin: 0 0 0.5rem 0; font-size: 0.8rem; color: #6b778c; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-meta { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    .badge { font-size: 0.7rem; padding: 0.15rem 0.4rem; border-radius: 4px; font-weight: 500; }
+    .badge.Low { background: #dfe1e6; color: #5e6c84; }
+    .badge.Medium { background: #deebff; color: #0052cc; }
+    .badge.High { background: #fff4e6; color: #b57900; }
+    .badge.Urgent { background: #ffebe6; color: #de350b; }
+    .card-due { font-size: 0.75rem; color: #6b778c; display: flex; align-items: center; gap: 0.2rem; }
+    .card-actions { display: flex; gap: 0.25rem; opacity: 0.7; }
+    .card-actions:hover { opacity: 1; }
+    .btn-icon { background: none; border: none; padding: 0.25rem; cursor: pointer; border-radius: 4px; color: #6b778c; }
+    .btn-icon:hover { background: #ebecf0; color: #172b4d; }
+    .btn-icon.Danger:hover { background: #ffebe6; color: #de350b; }
+
+    .alert { padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem; }
+    .alert-info { background: #deebff; color: #0052cc; }
+    .alert-danger { background: #ffebe6; color: #de350b; }
     .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1040; }
     .modal-dialog { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 1050; padding: 1rem; }
     .modal-content { background: #fff; border-radius: 8px; max-width: 500px; width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid #dee2e6; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid #dfe1e6; }
     .modal-header h2 { margin: 0; font-size: 1.25rem; }
     .modal-body { padding: 1.25rem; }
-    .modal-footer { display: flex; justify-content: flex-end; gap: 0.5rem; padding: 1rem 1.25rem; border-top: 1px solid #dee2e6; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 0.5rem; padding: 1rem 1.25rem; border-top: 1px solid #dfe1e6; }
     .btn-close { background: none; border: none; font-size: 1.25rem; cursor: pointer; opacity: 0.5; }
     .btn-close:hover { opacity: 1; }
 </style>
@@ -188,12 +229,13 @@
     private bool loading = true;
     private string? error;
     private string searchTerm = "";
-    private string statusFilter = "";
     private string priorityFilter = "";
     private bool showModal;
     private TaskItem? editingTask;
     private TaskFormModel formModel = new();
     private CancellationTokenSource? _searchCts;
+    private int? _draggingTaskId;
+    private TaskStatus? _dragOverColumn;
 
     protected override async Task OnInitializedAsync()
     {
@@ -208,9 +250,8 @@
 
         try
         {
-            var status = string.IsNullOrEmpty(statusFilter) ? null : (TaskStatus?)int.Parse(statusFilter);
             var priority = string.IsNullOrEmpty(priorityFilter) ? null : (TaskPriority?)int.Parse(priorityFilter);
-            tasks = await TaskApi.GetTasksAsync(status, priority, string.IsNullOrWhiteSpace(searchTerm) ? null : searchTerm);
+            tasks = await TaskApi.GetTasksAsync(null, priority, string.IsNullOrWhiteSpace(searchTerm) ? null : searchTerm);
         }
         catch (Exception ex)
         {
@@ -235,6 +276,73 @@
         }
         catch (OperationCanceledException) { }
     }
+
+    private List<TaskItem> GetTasksForStatus(TaskStatus status) =>
+        tasks.Where(t => t.Status == status).OrderByDescending(t => t.CreatedAt).ToList();
+
+    private void OnDragStart(DragEventArgs e, TaskItem task)
+    {
+        _draggingTaskId = task.Id;
+        e.DataTransfer.EffectAllowed = "move";
+        e.DataTransfer.SetData("text/plain", task.Id.ToString());
+        StateHasChanged();
+    }
+
+    private void OnDragOver(DragEventArgs e)
+    {
+        e.PreventDefault();
+        e.DataTransfer.DropEffect = "move";
+    }
+
+    private async Task OnDrop(DragEventArgs e, TaskStatus targetStatus)
+    {
+        e.PreventDefault();
+        var idStr = e.DataTransfer?.GetData("text/plain");
+        if (string.IsNullOrEmpty(idStr) || !int.TryParse(idStr, out var taskId)) return;
+
+        var task = tasks.FirstOrDefault(t => t.Id == taskId);
+        if (task == null || task.Status == targetStatus) { _draggingTaskId = null; StateHasChanged(); return; }
+
+        try
+        {
+            await TaskApi.UpdateStatusAsync(task.Id, targetStatus);
+            task.Status = targetStatus;
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+        _dragOverColumn = null;
+        _draggingTaskId = null;
+        StateHasChanged();
+    }
+
+    private void OnDragEnter(DragEventArgs e)
+    {
+        e.PreventDefault();
+    }
+
+    private void OnDragLeave(DragEventArgs e)
+    {
+        _dragOverColumn = null;
+    }
+
+    private void OnDragEnd()
+    {
+        _draggingTaskId = null;
+        StateHasChanged();
+    }
+
+    private static string GetStatusLabel(TaskStatus s) => s switch
+    {
+        TaskStatus.ToDo => "To Do",
+        TaskStatus.InProgress => "In Progress",
+        TaskStatus.Done => "Done",
+        TaskStatus.Cancelled => "Cancelled",
+        _ => s.ToString()
+    };
+
+    private static string GetColumnHeaderClass(TaskStatus s) => s.ToString().ToLowerInvariant().Replace(" ", "");
 
     private void OpenCreateModal()
     {
@@ -265,8 +373,7 @@
 
     private async Task SaveTask()
     {
-        if (string.IsNullOrWhiteSpace(formModel.Title))
-            return;
+        if (string.IsNullOrWhiteSpace(formModel.Title)) return;
 
         try
         {
@@ -289,24 +396,9 @@
         }
     }
 
-    private async Task ToggleComplete(TaskItem task)
-    {
-        var newStatus = task.Status == TaskStatus.Done ? TaskStatus.ToDo : TaskStatus.Done;
-        try
-        {
-            await TaskApi.UpdateStatusAsync(task.Id, newStatus);
-            await LoadTasks();
-        }
-        catch (Exception ex)
-        {
-            error = ex.Message;
-        }
-    }
-
     private async Task DeleteTask(TaskItem task)
     {
-        if (!await JS.InvokeAsync<bool>("confirm", $"Delete \"{task.Title}\"?"))
-            return;
+        if (!await JS.InvokeAsync<bool>("confirm", $"Delete \"{task.Title}\"?")) return;
 
         try
         {
@@ -319,7 +411,6 @@
         }
     }
 
-    private static string GetStatusClass(TaskStatus status) => status.ToString().ToLowerInvariant().Replace(" ", "");
     private static string GetPriorityClass(TaskPriority p) => p.ToString();
 
     private class TaskFormModel

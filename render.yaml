@@ -27,4 +27,4 @@ services:
     healthCheckPath: /health
     envVars:
       - key: ApiBaseUrl
-        value: "https://task-manager-api.onrender.com"
+        value: "https://task-manager-api-n629.onrender.com"

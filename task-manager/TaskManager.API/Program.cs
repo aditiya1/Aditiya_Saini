@@ -33,7 +33,8 @@ var app = builder.Build();
 app.UseCors();
 
 app.MapControllers();
-app.MapGet("/health", () => Results.Ok());
+app.MapGet("/health", () => Results.Json(new { status = "ok" }));
+app.MapGet("/", () => Results.Json(new { service = "TaskManager.API", status = "running" }));
 
 using (var scope = app.Services.CreateScope())
 {
