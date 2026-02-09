@@ -47,7 +47,7 @@ export const projects = [
       'Bootstrap'
     ],
     githubUrl: 'https://github.com/Adi1-git',
-    liveUrl: null,  // Set to your deployed Blazor URL (e.g. https://task-manager-blazor.onrender.com) after deploying to Render
+    liveUrl: "https://task-manager-blazor.onrender.com",
     features: [
       'Full CRUD operations for tasks',
       'Task status workflow (To Do, In Progress, Done, Cancelled)',
