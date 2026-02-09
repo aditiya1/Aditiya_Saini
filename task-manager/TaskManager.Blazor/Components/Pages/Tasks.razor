@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @inject TaskApiService TaskApi
 @inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <PageTitle>Tasks - Task Manager</PageTitle>
 
@@ -58,21 +59,20 @@
             {
                 var columnTasks = GetTasksForStatus(status);
                 <div class="kanban-column @(_dragOverColumn == status ? "drag-over" : "")"
-                     @ondragover="e => { OnDragOver(e); _dragOverColumn = status; }"
-                     @ondrop="e => OnDrop(e, status)"
+                     data-status="@((int)status)"
+                     @ondragover="e => { _dragOverColumn = status; }"
                      @ondragenter="e => { _dragOverColumn = status; }"
                      @ondragleave="e => { _dragOverColumn = null; }">
                     <div class="kanban-column-header @GetColumnHeaderClass(status)">
                         <span class="column-title">@GetStatusLabel(status)</span>
                         <span class="column-count">@columnTasks.Count</span>
                     </div>
-                    <div class="kanban-column-cards" data-status="@((int)status)">
+                    <div class="kanban-column-cards">
                         @foreach (var task in columnTasks)
                         {
-                            <div class="kanban-card @GetPriorityClass(task.Priority) @(_draggingTaskId == task.Id ? "dragging" : "")"
+                            <div class="kanban-card @GetPriorityClass(task.Priority)"
                                  draggable="true"
-                                 @ondragstart="e => OnDragStart(e, task)"
-                                 @ondragend="OnDragEnd">
+                                 data-task-id="@task.Id">
                                 <div class="card-content" @onclick="() => OpenEditModal(task)">
                                     <h4 class="card-title">@task.Title</h4>
                                     @if (!string.IsNullOrEmpty(task.Description))
@@ -234,12 +234,49 @@
     private TaskItem? editingTask;
     private TaskFormModel formModel = new();
     private CancellationTokenSource? _searchCts;
-    private int? _draggingTaskId;
     private TaskStatus? _dragOverColumn;
+    private DotNetObjectReference<Tasks>? _dotNetRef;
+    private bool _dragDropInitialized;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadTasks();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!_dragDropInitialized && tasks.Any())
+        {
+            _dotNetRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("initKanbanDragDrop", _dotNetRef);
+            _dragDropInitialized = true;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_dragDropInitialized)
+            await JS.InvokeVoidAsync("disposeKanbanDragDrop");
+        _dotNetRef?.Dispose();
+    }
+
+    [JSInvokable]
+    public async Task OnTaskDropped(int taskId, int targetStatus)
+    {
+        var task = tasks.FirstOrDefault(t => t.Id == taskId);
+        if (task == null || task.Status == (TaskStatus)targetStatus) { _dragOverColumn = null; StateHasChanged(); return; }
+
+        try
+        {
+            await TaskApi.UpdateStatusAsync(task.Id, (TaskStatus)targetStatus);
+            task.Status = (TaskStatus)targetStatus;
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+        _dragOverColumn = null;
+        StateHasChanged();
     }
 
     private async Task LoadTasks()
@@ -279,59 +316,6 @@
 
     private List<TaskItem> GetTasksForStatus(TaskStatus status) =>
         tasks.Where(t => t.Status == status).OrderByDescending(t => t.CreatedAt).ToList();
-
-    private void OnDragStart(DragEventArgs e, TaskItem task)
-    {
-        _draggingTaskId = task.Id;
-        e.DataTransfer.EffectAllowed = "move";
-        e.DataTransfer.SetData("text/plain", task.Id.ToString());
-        StateHasChanged();
-    }
-
-    private void OnDragOver(DragEventArgs e)
-    {
-        e.PreventDefault();
-        e.DataTransfer.DropEffect = "move";
-    }
-
-    private async Task OnDrop(DragEventArgs e, TaskStatus targetStatus)
-    {
-        e.PreventDefault();
-        var idStr = e.DataTransfer?.GetData("text/plain");
-        if (string.IsNullOrEmpty(idStr) || !int.TryParse(idStr, out var taskId)) return;
-
-        var task = tasks.FirstOrDefault(t => t.Id == taskId);
-        if (task == null || task.Status == targetStatus) { _draggingTaskId = null; StateHasChanged(); return; }
-
-        try
-        {
-            await TaskApi.UpdateStatusAsync(task.Id, targetStatus);
-            task.Status = targetStatus;
-        }
-        catch (Exception ex)
-        {
-            error = ex.Message;
-        }
-        _dragOverColumn = null;
-        _draggingTaskId = null;
-        StateHasChanged();
-    }
-
-    private void OnDragEnter(DragEventArgs e)
-    {
-        e.PreventDefault();
-    }
-
-    private void OnDragLeave(DragEventArgs e)
-    {
-        _dragOverColumn = null;
-    }
-
-    private void OnDragEnd()
-    {
-        _draggingTaskId = null;
-        StateHasChanged();
-    }
 
     private static string GetStatusLabel(TaskStatus s) => s switch
     {
