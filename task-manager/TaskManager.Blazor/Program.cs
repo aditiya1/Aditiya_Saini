@@ -39,11 +39,15 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 app.UseStatusCodePages();
-app.UseHttpsRedirection();
+if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PORT")))
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAntiforgery();
 app.UseStaticFiles();
 
+app.MapGet("/health", () => Results.Ok());
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

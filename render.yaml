@@ -24,7 +24,7 @@ services:
     rootDir: task-manager/TaskManager.Blazor
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    healthCheckPath: /
+    healthCheckPath: /health
     envVars:
       - key: ApiBaseUrl
         sync: false  # Set to https://task-manager-api.onrender.com after deploy
