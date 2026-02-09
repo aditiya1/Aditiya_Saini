@@ -38,7 +38,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
-app.UseStatusCodePagesWithReExecute("/not-found");
+app.UseStatusCodePages();
 app.UseHttpsRedirection();
 
 app.UseAntiforgery();
