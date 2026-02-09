@@ -1,14 +1,39 @@
-// Set up event handlers
-const reconnectModal = document.getElementById("components-reconnect-modal");
-reconnectModal.addEventListener("components-reconnect-state-changed", handleReconnectStateChanged);
+// Set up event handlers when DOM is ready (Blazor may render ReconnectModal after load)
+function initReconnectModal() {
+    const reconnectModal = document.getElementById("components-reconnect-modal");
+    if (!reconnectModal) {
+        // Retry a few times - Blazor Server may render the modal after connection
+        let attempts = 0;
+        const id = setInterval(() => {
+            attempts++;
+            const el = document.getElementById("components-reconnect-modal");
+            if (el) {
+                clearInterval(id);
+                attachHandlers(el);
+            } else if (attempts >= 20) clearInterval(id);
+        }, 100);
+        return;
+    }
+    attachHandlers(reconnectModal);
+}
 
-const retryButton = document.getElementById("components-reconnect-button");
-retryButton.addEventListener("click", retry);
+function attachHandlers(reconnectModal) {
+    reconnectModal.addEventListener("components-reconnect-state-changed", handleReconnectStateChanged);
+    const retryButton = document.getElementById("components-reconnect-button");
+    if (retryButton) retryButton.addEventListener("click", retry);
+    const resumeButton = document.getElementById("components-resume-button");
+    if (resumeButton) resumeButton.addEventListener("click", resume);
+}
 
-const resumeButton = document.getElementById("components-resume-button");
-resumeButton.addEventListener("click", resume);
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initReconnectModal);
+} else {
+    initReconnectModal();
+}
 
 function handleReconnectStateChanged(event) {
+    const reconnectModal = document.getElementById("components-reconnect-modal");
+    if (!reconnectModal) return;
     if (event.detail.state === "show") {
         reconnectModal.showModal();
     } else if (event.detail.state === "hide") {
@@ -30,7 +55,8 @@ async function retry() {
             if (!resumeSuccessful) {
                 location.reload();
             } else {
-                reconnectModal.close();
+                const modal = document.getElementById("components-reconnect-modal");
+                if (modal) modal.close();
             }
         }
     } catch (err) {
@@ -45,7 +71,8 @@ async function resume() {
             location.reload();
         }
     } catch {
-        reconnectModal.classList.replace("components-reconnect-paused", "components-reconnect-resume-failed");
+        const modal = document.getElementById("components-reconnect-modal");
+        if (modal) modal.classList.replace("components-reconnect-paused", "components-reconnect-resume-failed");
     }
 }
 

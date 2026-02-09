@@ -1,6 +1,15 @@
 <Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+        <ErrorBoundary>
+            <ChildContent>
+                <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+            </ChildContent>
+            <ErrorContent>
+                <div class="alert alert-danger m-3 p-3">
+                    <strong>Something went wrong.</strong> Try <a href="/">reloading the page</a>.
+                </div>
+            </ErrorContent>
+        </ErrorBoundary>
     </Found>
     <NotFound>
         <LayoutView Layout="typeof(Layout.MainLayout)">
