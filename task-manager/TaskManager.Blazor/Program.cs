@@ -19,6 +19,8 @@ if (string.IsNullOrEmpty(apiBaseUrl))
         apiBaseUrl = hostport.StartsWith("http") ? hostport : $"http://{hostport}";
     else if (!string.IsNullOrEmpty(apiHost) && !string.IsNullOrEmpty(apiPort))
         apiBaseUrl = $"http://{apiHost}:{apiPort}";
+    else if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PORT")))
+        apiBaseUrl = "https://task-manager-api.onrender.com";
     else
         apiBaseUrl = "http://localhost:5000";
 }
