@@ -10,6 +10,9 @@ public class TaskItem
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? DueDate { get; set; }
     public DateTime? CompletedAt { get; set; }
+    public string? Assignee { get; set; }
+    public string? SubtasksJson { get; set; }
+    public string? RemarksJson { get; set; }
 }
 
 public enum TaskPriority

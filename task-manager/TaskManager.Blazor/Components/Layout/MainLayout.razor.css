@@ -2,29 +2,37 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
 }
 
 main {
     flex: 1;
+    background: #e3f2fd;
 }
 
 .sidebar {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+    background: linear-gradient(180deg, #1565c0 0%, #0d47a1 100%);
 }
 
 .top-row {
-    background-color: #f7f7f7;
-    border-bottom: 1px solid #d6d5d5;
+    background-color: #bbdefb;
+    border-bottom: 1px solid #90caf9;
     justify-content: flex-end;
     height: 3.5rem;
     display: flex;
     align-items: center;
 }
 
-    .top-row ::deep a, .top-row ::deep .btn-link {
+    .top-row ::deep a, .top-row ::deep .btn-link, .top-row a {
         white-space: nowrap;
         margin-left: 1.5rem;
         text-decoration: none;
+        color: #0d47a1;
+        font-weight: 500;
+    }
+
+    .top-row ::deep a:hover, .top-row ::deep .btn-link:hover, .top-row a:hover {
+        color: #1565c0;
     }
 
     .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {

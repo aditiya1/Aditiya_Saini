@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace TaskManager.Blazor.Models;
 
 public class TaskItem
@@ -10,6 +12,27 @@ public class TaskItem
     public DateTime CreatedAt { get; set; }
     public DateTime? DueDate { get; set; }
     public DateTime? CompletedAt { get; set; }
+    public string? Assignee { get; set; }
+    public string? SubtasksJson { get; set; }
+    public string? RemarksJson { get; set; }
+
+    public List<SubtaskItem> GetSubtasks() =>
+        string.IsNullOrEmpty(SubtasksJson) ? [] : JsonSerializer.Deserialize<List<SubtaskItem>>(SubtasksJson) ?? [];
+
+    public List<RemarkItem> GetRemarks() =>
+        string.IsNullOrEmpty(RemarksJson) ? [] : JsonSerializer.Deserialize<List<RemarkItem>>(RemarksJson) ?? [];
+}
+
+public class SubtaskItem
+{
+    public string Title { get; set; } = "";
+    public bool Completed { get; set; }
+}
+
+public class RemarkItem
+{
+    public string Text { get; set; } = "";
+    public string Date { get; set; } = "";
 }
 
 public enum TaskPriority

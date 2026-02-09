@@ -19,6 +19,9 @@ public class TaskDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Title).HasMaxLength(200);
             entity.Property(e => e.Description).HasMaxLength(2000);
+            entity.Property(e => e.Assignee).HasMaxLength(100);
+            entity.Property(e => e.SubtasksJson).HasMaxLength(4000);
+            entity.Property(e => e.RemarksJson).HasMaxLength(4000);
             entity.HasIndex(e => e.Status);
             entity.HasIndex(e => e.Priority);
         });

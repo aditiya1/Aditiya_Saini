@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json;
 using TaskManager.Blazor.Models;
 using TaskStatus = TaskManager.Blazor.Models.TaskStatus;
 
@@ -86,7 +87,10 @@ public class TaskApiService
                 Priority = request.Priority ?? TaskPriority.Medium,
                 Status = request.Status ?? TaskStatus.ToDo,
                 CreatedAt = DateTime.UtcNow,
-                DueDate = request.DueDate
+                DueDate = request.DueDate,
+                Assignee = request.Assignee,
+                SubtasksJson = request.Subtasks != null ? JsonSerializer.Serialize(request.Subtasks) : null,
+                RemarksJson = request.Remarks != null ? JsonSerializer.Serialize(request.Remarks) : null
             };
             _fallbackTasks.Add(task);
             return task;
@@ -119,6 +123,9 @@ public class TaskApiService
             if (request.Priority != null) task.Priority = request.Priority.Value;
             if (request.Status != null) task.Status = request.Status.Value;
             task.DueDate = request.DueDate;
+            if (request.Assignee != null) task.Assignee = request.Assignee;
+            if (request.Subtasks != null) task.SubtasksJson = JsonSerializer.Serialize(request.Subtasks);
+            if (request.Remarks != null) task.RemarksJson = JsonSerializer.Serialize(request.Remarks);
             if (request.Status == TaskStatus.Done) task.CompletedAt = DateTime.UtcNow;
             else if (request.Status != null) task.CompletedAt = null;
             return task;
@@ -190,6 +197,6 @@ public class TaskApiService
     }
 }
 
-public record CreateTaskRequest(string Title, string? Description, TaskPriority? Priority, TaskStatus? Status, DateTime? DueDate);
+public record CreateTaskRequest(string Title, string? Description, TaskPriority? Priority, TaskStatus? Status, DateTime? DueDate, string? Assignee = null, List<SubtaskItem>? Subtasks = null, List<RemarkItem>? Remarks = null);
 
-public record UpdateTaskRequest(string? Title, string? Description, TaskPriority? Priority, TaskStatus? Status, DateTime? DueDate);
+public record UpdateTaskRequest(string? Title, string? Description, TaskPriority? Priority, TaskStatus? Status, DateTime? DueDate, string? Assignee = null, List<SubtaskItem>? Subtasks = null, List<RemarkItem>? Remarks = null);

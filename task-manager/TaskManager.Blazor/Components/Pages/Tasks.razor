@@ -81,9 +81,18 @@
                                     }
                                     <div class="card-meta">
                                         <span class="badge @GetPriorityClass(task.Priority)">@task.Priority</span>
+                                        @if (!string.IsNullOrEmpty(task.Assignee))
+                                        {
+                                            <span class="card-assignee"><span class="bi bi-person"></span> @task.Assignee</span>
+                                        }
                                         @if (task.DueDate.HasValue)
                                         {
                                             <span class="card-due"><span class="bi bi-calendar3"></span> @task.DueDate.Value.ToString("MMM d")</span>
+                                        }
+                                        @{ var subs = task.GetSubtasks(); }
+                                        @if (subs.Count > 0)
+                                        {
+                                            <span class="card-subtasks"><span class="bi bi-list-check"></span> @subs.Count(s => s.Completed)/@subs.Count</span>
                                         }
                                     </div>
                                 </div>
@@ -108,7 +117,7 @@
 {
     <div class="modal-backdrop" @onclick="CloseModal"></div>
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content modal-content-wide">
             <div class="modal-header">
                 <h2>@(editingTask?.Id == null ? "New Task" : "Edit Task")</h2>
                 <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close"></button>
@@ -124,6 +133,37 @@
                     <div class="mb-3">
                         <label class="form-label">Description</label>
                         <InputTextArea class="form-control" @bind-Value="formModel.Description" rows="3" placeholder="Optional description" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Assignee</label>
+                        <InputText class="form-control" @bind-Value="formModel.Assignee" placeholder="Assign to (e.g. John, Team Lead)" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Subtasks</label>
+                        <div class="subtask-list">
+                            @foreach (var (subtask, i) in formModel.Subtasks.Select((s, i) => (s, i)))
+                            {
+                                <div class="subtask-row">
+                                    <input type="checkbox" checked="@subtask.Completed" @onchange="() => ToggleSubtask(i)" />
+                                    <InputText class="form-control form-control-sm" @bind-Value="subtask.Title" placeholder="Subtask" />
+                                    <button type="button" class="btn-icon-sm" @onclick="() => RemoveSubtask(i)" title="Remove"><span class="bi bi-x-lg"></span></button>
+                                </div>
+                            }
+                            <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="AddSubtask"><span class="bi bi-plus"></span> Add subtask</button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Remarks</label>
+                        <div class="remark-list">
+                            @foreach (var (remark, i) in formModel.Remarks.Select((r, idx) => (r, idx)))
+                            {
+                                <div class="remark-row">
+                                    <InputTextArea class="form-control form-control-sm" @bind-Value="remark.Text" rows="2" placeholder="Add a remark" />
+                                    <button type="button" class="btn-icon-sm" @onclick="() => RemoveRemark(i)" title="Remove"><span class="bi bi-x-lg"></span></button>
+                                </div>
+                            }
+                            <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="AddRemark"><span class="bi bi-plus"></span> Add remark</button>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -160,7 +200,7 @@
 }
 
 <style>
-    .kanban-container { padding: 1rem 1.5rem; min-height: calc(100vh - 120px); background: #f4f5f7; }
+    .kanban-container { padding: 1rem 1.5rem; min-height: calc(100vh - 120px); background: #e3f2fd; }
     .kanban-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
     .kanban-header h1 { margin: 0; font-size: 1.5rem; font-weight: 600; color: #172b4d; }
     .kanban-header-actions { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
@@ -203,7 +243,7 @@
     .badge.Medium { background: #deebff; color: #0052cc; }
     .badge.High { background: #fff4e6; color: #b57900; }
     .badge.Urgent { background: #ffebe6; color: #de350b; }
-    .card-due { font-size: 0.75rem; color: #6b778c; display: flex; align-items: center; gap: 0.2rem; }
+    .card-due, .card-assignee, .card-subtasks { font-size: 0.75rem; color: #6b778c; display: flex; align-items: center; gap: 0.2rem; }
     .card-actions { display: flex; gap: 0.25rem; opacity: 0.7; }
     .card-actions:hover { opacity: 1; }
     .btn-icon { background: none; border: none; padding: 0.25rem; cursor: pointer; border-radius: 4px; color: #6b778c; }
@@ -216,6 +256,15 @@
     .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1040; }
     .modal-dialog { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 1050; padding: 1rem; }
     .modal-content { background: #fff; border-radius: 8px; max-width: 500px; width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+    .modal-content-wide { max-width: 560px; max-height: 90vh; overflow-y: auto; }
+    .subtask-list, .remark-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .subtask-row { display: flex; align-items: center; gap: 0.5rem; }
+    .subtask-row input[type="checkbox"] { flex-shrink: 0; }
+    .subtask-row .form-control { flex: 1; }
+    .remark-row { display: flex; gap: 0.5rem; align-items: flex-start; }
+    .remark-row .form-control { flex: 1; }
+    .btn-icon-sm { background: none; border: none; padding: 0.25rem; cursor: pointer; color: #6b778c; font-size: 0.8rem; }
+    .btn-icon-sm:hover { color: #de350b; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid #dfe1e6; }
     .modal-header h2 { margin: 0; font-size: 1.25rem; }
     .modal-body { padding: 1.25rem; }
@@ -331,7 +380,16 @@
     private void OpenCreateModal()
     {
         editingTask = null;
-        formModel = new TaskFormModel { Title = "", Description = "", Priority = TaskPriority.Medium, Status = TaskStatus.ToDo };
+        formModel = new TaskFormModel
+        {
+            Title = "",
+            Description = "",
+            Priority = TaskPriority.Medium,
+            Status = TaskStatus.ToDo,
+            Assignee = "",
+            Subtasks = [],
+            Remarks = []
+        };
         showModal = true;
     }
 
@@ -344,10 +402,19 @@
             Description = task.Description ?? "",
             Priority = task.Priority,
             Status = task.Status,
-            DueDate = task.DueDate
+            DueDate = task.DueDate,
+            Assignee = task.Assignee ?? "",
+            Subtasks = task.GetSubtasks().Select(s => new SubtaskItem { Title = s.Title, Completed = s.Completed }).ToList(),
+            Remarks = task.GetRemarks().Select(r => new RemarkItem { Text = r.Text, Date = r.Date }).ToList()
         };
         showModal = true;
     }
+
+    private void AddSubtask() { formModel.Subtasks.Add(new SubtaskItem { Title = "", Completed = false }); }
+    private void RemoveSubtask(int i) { formModel.Subtasks.RemoveAt(i); }
+    private void ToggleSubtask(int i) { formModel.Subtasks[i].Completed = !formModel.Subtasks[i].Completed; }
+    private void AddRemark() { formModel.Remarks.Add(new RemarkItem { Text = "", Date = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ") }); }
+    private void RemoveRemark(int i) { formModel.Remarks.RemoveAt(i); }
 
     private void CloseModal()
     {
@@ -361,15 +428,20 @@
 
         try
         {
+            var subtasks = formModel.Subtasks.Where(s => !string.IsNullOrWhiteSpace(s.Title)).ToList();
+            var remarks = formModel.Remarks.Where(r => !string.IsNullOrWhiteSpace(r.Text)).Select(r => new RemarkItem { Text = r.Text, Date = r.Date }).ToList();
+
             if (editingTask?.Id != null)
             {
                 await TaskApi.UpdateTaskAsync(editingTask.Id, new UpdateTaskRequest(
-                    formModel.Title, formModel.Description, formModel.Priority, formModel.Status, formModel.DueDate));
+                    formModel.Title, formModel.Description, formModel.Priority, formModel.Status, formModel.DueDate,
+                    string.IsNullOrWhiteSpace(formModel.Assignee) ? null : formModel.Assignee, subtasks, remarks));
             }
             else
             {
                 await TaskApi.CreateTaskAsync(new CreateTaskRequest(
-                    formModel.Title, formModel.Description, formModel.Priority, formModel.Status, formModel.DueDate));
+                    formModel.Title, formModel.Description, formModel.Priority, formModel.Status, formModel.DueDate,
+                    string.IsNullOrWhiteSpace(formModel.Assignee) ? null : formModel.Assignee, subtasks, remarks));
             }
             CloseModal();
             await LoadTasks();
@@ -406,5 +478,8 @@
         public TaskPriority Priority { get; set; } = TaskPriority.Medium;
         public TaskStatus Status { get; set; } = TaskStatus.ToDo;
         public DateTime? DueDate { get; set; }
+        public string Assignee { get; set; } = "";
+        public List<SubtaskItem> Subtasks { get; set; } = [];
+        public List<RemarkItem> Remarks { get; set; } = [];
     }
 }

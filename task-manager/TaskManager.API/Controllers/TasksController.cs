@@ -62,7 +62,10 @@ public class TasksController : ControllerBase
             Description = request.Description,
             Priority = request.Priority ?? TaskPriority.Medium,
             Status = request.Status ?? TaskStatus.ToDo,
-            DueDate = request.DueDate
+            DueDate = request.DueDate,
+            Assignee = request.Assignee,
+            SubtasksJson = request.Subtasks != null ? System.Text.Json.JsonSerializer.Serialize(request.Subtasks) : null,
+            RemarksJson = request.Remarks != null ? System.Text.Json.JsonSerializer.Serialize(request.Remarks) : null
         };
 
         _context.Tasks.Add(task);
@@ -83,6 +86,9 @@ public class TasksController : ControllerBase
         task.Priority = request.Priority ?? task.Priority;
         task.Status = request.Status ?? task.Status;
         task.DueDate = request.DueDate ?? task.DueDate;
+        if (request.Assignee != null) task.Assignee = string.IsNullOrWhiteSpace(request.Assignee) ? null : request.Assignee;
+        if (request.Subtasks != null) task.SubtasksJson = System.Text.Json.JsonSerializer.Serialize(request.Subtasks);
+        if (request.Remarks != null) task.RemarksJson = System.Text.Json.JsonSerializer.Serialize(request.Remarks);
 
         if (request.Status == TaskStatus.Done && task.CompletedAt == null)
             task.CompletedAt = DateTime.UtcNow;
@@ -123,18 +129,27 @@ public class TasksController : ControllerBase
     }
 }
 
+public record SubtaskDto(string Title, bool Completed);
+public record RemarkDto(string Text, string Date);
+
 public record CreateTaskRequest(
     string Title,
     string? Description = null,
     TaskPriority? Priority = null,
     TaskStatus? Status = null,
-    DateTime? DueDate = null);
+    DateTime? DueDate = null,
+    string? Assignee = null,
+    List<SubtaskDto>? Subtasks = null,
+    List<RemarkDto>? Remarks = null);
 
 public record UpdateTaskRequest(
     string? Title = null,
     string? Description = null,
     TaskPriority? Priority = null,
     TaskStatus? Status = null,
-    DateTime? DueDate = null);
+    DateTime? DueDate = null,
+    string? Assignee = null,
+    List<SubtaskDto>? Subtasks = null,
+    List<RemarkDto>? Remarks = null);
 
 public record UpdateStatusRequest(TaskStatus Status);
