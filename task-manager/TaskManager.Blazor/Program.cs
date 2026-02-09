@@ -31,6 +31,11 @@ builder.Services.AddScoped<TaskApiService>(sp =>
     var client = sp.GetRequiredService<IHttpClientFactory>().CreateClient("TaskApi");
     return new TaskApiService(client);
 });
+builder.Services.AddScoped<ProjectApiService>(sp =>
+{
+    var client = sp.GetRequiredService<IHttpClientFactory>().CreateClient("TaskApi");
+    return new ProjectApiService(client);
+});
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

@@ -19,11 +19,15 @@ public class TasksController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasks(
+        [FromQuery] int? projectId = null,
         [FromQuery] TaskStatus? status = null,
         [FromQuery] TaskPriority? priority = null,
         [FromQuery] string? search = null)
     {
         var query = _context.Tasks.AsQueryable();
+
+        if (projectId.HasValue)
+            query = query.Where(t => t.ProjectId == projectId.Value);
 
         if (status.HasValue)
             query = query.Where(t => t.Status == status.Value);
@@ -56,8 +60,12 @@ public class TasksController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<TaskItem>> CreateTask([FromBody] CreateTaskRequest request)
     {
+        if (!await _context.Projects.AnyAsync(p => p.Id == request.ProjectId))
+            return BadRequest("Project not found");
+
         var task = new TaskItem
         {
+            ProjectId = request.ProjectId,
             Title = request.Title,
             Description = request.Description,
             Priority = request.Priority ?? TaskPriority.Medium,
@@ -133,6 +141,7 @@ public record SubtaskDto(string Title, bool Completed);
 public record RemarkDto(string Text, string Date);
 
 public record CreateTaskRequest(
+    int ProjectId,
     string Title,
     string? Description = null,
     TaskPriority? Priority = null,

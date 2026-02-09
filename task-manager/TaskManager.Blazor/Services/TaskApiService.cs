@@ -20,13 +20,14 @@ public class TaskApiService
         _http = http;
     }
 
-    public async Task<List<TaskItem>> GetTasksAsync(TaskStatus? status = null, TaskPriority? priority = null, string? search = null)
+    public async Task<List<TaskItem>> GetTasksAsync(int? projectId = null, TaskStatus? status = null, TaskPriority? priority = null, string? search = null)
     {
         if (!_useFallback)
         {
             try
             {
                 var query = new List<string>();
+                if (projectId.HasValue) query.Add($"projectId={projectId.Value}");
                 if (status.HasValue) query.Add($"status={(int)status.Value}");
                 if (priority.HasValue) query.Add($"priority={(int)priority.Value}");
                 if (!string.IsNullOrWhiteSpace(search)) query.Add($"search={Uri.EscapeDataString(search!)}");
@@ -41,7 +42,7 @@ public class TaskApiService
             }
         }
 
-        return GetFallbackTasks(status, priority, search);
+        return GetFallbackTasks(projectId, status, priority, search);
     }
 
     public async Task<TaskItem?> GetTaskAsync(int id)
@@ -82,6 +83,7 @@ public class TaskApiService
             var task = new TaskItem
             {
                 Id = _nextId++,
+                ProjectId = request.ProjectId,
                 Title = request.Title,
                 Description = request.Description,
                 Priority = request.Priority ?? TaskPriority.Medium,
@@ -181,9 +183,10 @@ public class TaskApiService
         }
     }
 
-    private List<TaskItem> GetFallbackTasks(TaskStatus? status, TaskPriority? priority, string? search)
+    private List<TaskItem> GetFallbackTasks(int? projectId, TaskStatus? status, TaskPriority? priority, string? search)
     {
         var list = _fallbackTasks.AsEnumerable();
+        if (projectId.HasValue) list = list.Where(t => t.ProjectId == projectId.Value);
         if (status.HasValue) list = list.Where(t => t.Status == status.Value);
         if (priority.HasValue) list = list.Where(t => t.Priority == priority.Value);
         if (!string.IsNullOrWhiteSpace(search))
@@ -197,6 +200,6 @@ public class TaskApiService
     }
 }
 
-public record CreateTaskRequest(string Title, string? Description, TaskPriority? Priority, TaskStatus? Status, DateTime? DueDate, string? Assignee = null, List<SubtaskItem>? Subtasks = null, List<RemarkItem>? Remarks = null);
+public record CreateTaskRequest(int ProjectId, string Title, string? Description, TaskPriority? Priority, TaskStatus? Status, DateTime? DueDate, string? Assignee = null, List<SubtaskItem>? Subtasks = null, List<RemarkItem>? Remarks = null);
 
 public record UpdateTaskRequest(string? Title, string? Description, TaskPriority? Priority, TaskStatus? Status, DateTime? DueDate, string? Assignee = null, List<SubtaskItem>? Subtasks = null, List<RemarkItem>? Remarks = null);

@@ -40,11 +40,20 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<TaskDbContext>();
     db.Database.EnsureCreated();
-    if (!db.Tasks.Any())
+    if (!db.Projects.Any())
     {
+        var project = new TaskManager.API.Models.Project
+        {
+            Name = "Getting Started",
+            Description = "Your first project",
+            Color = "#2563eb"
+        };
+        db.Projects.Add(project);
+        db.SaveChanges();
         db.Tasks.AddRange(
             new TaskManager.API.Models.TaskItem
             {
+                ProjectId = project.Id,
                 Title = "Welcome task",
                 Description = "Complete the task manager setup",
                 Priority = TaskManager.API.Models.TaskPriority.High,
@@ -52,6 +61,7 @@ using (var scope = app.Services.CreateScope())
             },
             new TaskManager.API.Models.TaskItem
             {
+                ProjectId = project.Id,
                 Title = "Review documentation",
                 Description = "Read through the API documentation",
                 Priority = TaskManager.API.Models.TaskPriority.Medium,

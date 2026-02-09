@@ -1,35 +1,43 @@
-@page "/tasks"
+@page "/projects/{ProjectId:int}"
 @rendermode InteractiveServer
 @inject TaskApiService TaskApi
+@inject ProjectApiService ProjectApi
 @inject IJSRuntime JS
 @implements IAsyncDisposable
 
-<PageTitle>Tasks - Task Manager</PageTitle>
+<PageTitle>@(project?.Name ?? "Tasks") - Task Manager</PageTitle>
 
-<div class="kanban-container">
-    <div class="kanban-header">
-        <h1>Task Manager</h1>
-        <div class="kanban-header-actions">
-            <div class="search-box">
-                <span class="bi bi-search"></span>
-                <input type="text" placeholder="Search tasks..."
-                       @bind="searchTerm" @bind:event="oninput" @bind:after="OnSearchInput" />
+<div class="kanban-page">
+    <header class="kanban-header">
+        <a href="/projects" class="back-link">
+            <span class="bi bi-arrow-left"></span> Projects
+        </a>
+        <div class="kanban-header-main">
+            <div class="project-badge" style="background: @(project?.Color ?? "#2563eb")20; color: @(project?.Color ?? "#2563eb")">
+                @(project?.Name ?? "Loading...")
             </div>
-            <select class="filter-select" @bind="priorityFilter" @bind:after="LoadTasks">
-                <option value="">All Priorities</option>
-                <option value="0">Low</option>
-                <option value="1">Medium</option>
-                <option value="2">High</option>
-                <option value="3">Urgent</option>
-            </select>
-            <button class="btn btn-primary" @onclick="OpenCreateModal">
-                <span class="bi bi-plus-lg"></span> Add Task
-            </button>
-            <button class="btn btn-ghost" @onclick="LoadTasks" title="Refresh">
-                <span class="bi bi-arrow-clockwise"></span>
-            </button>
+            <div class="kanban-header-actions">
+                <div class="search-box">
+                    <span class="bi bi-search"></span>
+                    <input type="text" placeholder="Search tasks..."
+                           @bind="searchTerm" @bind:event="oninput" @bind:after="OnSearchInput" />
+                </div>
+                <select class="filter-select" @bind="priorityFilter" @bind:after="LoadTasks">
+                    <option value="">All Priorities</option>
+                    <option value="0">Low</option>
+                    <option value="1">Medium</option>
+                    <option value="2">High</option>
+                    <option value="3">Urgent</option>
+                </select>
+                <button class="btn btn-primary" @onclick="OpenCreateModal">
+                    <span class="bi bi-plus-lg"></span> Add Task
+                </button>
+                <button class="btn btn-ghost" @onclick="LoadTasks" title="Refresh">
+                    <span class="bi bi-arrow-clockwise"></span>
+                </button>
+            </div>
         </div>
-    </div>
+    </header>
 
     @if (TaskApi.IsUsingFallback)
     {
@@ -40,15 +48,26 @@
         <div class="alert alert-danger">@error</div>
     }
 
-    @if (loading)
+    @if (loading && project == null)
+    {
+        <div class="loading">Loading...</div>
+    }
+    else if (project == null)
+    {
+        <div class="empty-state">
+            <p>Project not found.</p>
+            <a href="/projects" class="btn btn-primary">Back to Projects</a>
+        </div>
+    }
+    else if (loading)
     {
         <div class="loading">Loading tasks...</div>
     }
     else if (!tasks.Any())
     {
         <div class="empty-state">
-            <span class="bi bi-kanban"></span>
-            <p>No tasks yet. Create your first task to get started!</p>
+            <span class="bi bi-inbox"></span>
+            <p>No tasks yet. Create your first task for this project!</p>
             <button class="btn btn-primary" @onclick="OpenCreateModal">Add Task</button>
         </div>
     }
@@ -200,62 +219,65 @@
 }
 
 <style>
-    .kanban-container { padding: 1rem 1.5rem; min-height: calc(100vh - 120px); background: #e3f2fd; }
-    .kanban-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
-    .kanban-header h1 { margin: 0; font-size: 1.5rem; font-weight: 600; color: #172b4d; }
+    .kanban-page { padding: 1.5rem 2rem; min-height: calc(100vh - 120px); background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%); }
+    .back-link { display: inline-flex; align-items: center; gap: 0.4rem; color: #64748b; text-decoration: none; font-size: 0.9rem; margin-bottom: 1rem; }
+    .back-link:hover { color: #0f172a; }
+    .kanban-header { margin-bottom: 1.5rem; }
+    .project-badge { display: inline-block; padding: 0.4rem 1rem; border-radius: 8px; font-weight: 600; font-size: 1.25rem; margin-bottom: 0.75rem; }
+    .kanban-header-main { display: flex; flex-direction: column; gap: 1rem; }
     .kanban-header-actions { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
-    .search-box { display: flex; align-items: center; gap: 0.5rem; background: #fff; border-radius: 6px; padding: 0.5rem 0.75rem; border: 1px solid #dfe1e6; }
-    .search-box .bi { color: #6b778c; font-size: 1rem; }
-    .search-box input { border: none; outline: none; width: 180px; font-size: 0.9rem; }
-    .filter-select { padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid #dfe1e6; font-size: 0.9rem; background: #fff; }
-    .btn-primary { background: #0052cc; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; }
-    .btn-primary:hover { background: #0747a6; }
-    .btn-ghost { background: transparent; border: 1px solid #dfe1e6; border-radius: 6px; padding: 0.5rem; cursor: pointer; color: #6b778c; }
-    .btn-ghost:hover { background: #ebecf0; color: #172b4d; }
-    .loading, .empty-state { text-align: center; padding: 4rem 2rem; color: #6b778c; }
+    .search-box { display: flex; align-items: center; gap: 0.5rem; background: #fff; border-radius: 8px; padding: 0.5rem 0.75rem; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .search-box .bi { color: #94a3b8; }
+    .search-box input { border: none; outline: none; width: 200px; font-size: 0.9rem; }
+    .filter-select { padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.9rem; background: #fff; }
+    .btn-primary { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; border: none; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; box-shadow: 0 2px 4px rgba(37,99,235,0.3); }
+    .btn-primary:hover { background: linear-gradient(135deg, #1d4ed8, #1e40af); box-shadow: 0 4px 8px rgba(37,99,235,0.4); }
+    .btn-ghost { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.5rem; cursor: pointer; color: #64748b; }
+    .btn-ghost:hover { background: #f8fafc; color: #0f172a; }
+    .loading, .empty-state { text-align: center; padding: 4rem 2rem; color: #64748b; }
     .empty-state .bi { font-size: 3rem; display: block; margin-bottom: 1rem; opacity: 0.5; }
     .empty-state .btn { margin-top: 1rem; }
 
-    .kanban-board { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 1rem; min-height: 400px; align-items: flex-start; }
-    .kanban-column { flex: 0 0 280px; background: #ebecf0; border-radius: 8px; padding: 0.5rem; min-height: 120px; transition: background 0.15s; }
-    .kanban-column.drag-over { background: #c5cae9; }
-    .kanban-column-header { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.75rem; margin-bottom: 0.5rem; border-radius: 6px; font-weight: 600; font-size: 0.9rem; }
-    .kanban-column-header.todo { background: rgba(0,82,204,0.15); color: #0052cc; }
-    .kanban-column-header.inprogress { background: rgba(255,171,0,0.2); color: #b57900; }
-    .kanban-column-header.done { background: rgba(0,135,90,0.15); color: #006644; }
-    .kanban-column-header.cancelled { background: rgba(107,119,140,0.2); color: #5e6c84; }
-    .column-count { background: rgba(0,0,0,0.1); padding: 0.1rem 0.5rem; border-radius: 10px; font-size: 0.8rem; }
-    .kanban-column-cards { display: flex; flex-direction: column; gap: 0.5rem; min-height: 60px; }
-    .kanban-card { background: #fff; border-radius: 8px; padding: 0.75rem; box-shadow: 0 1px 2px rgba(0,0,0,0.08); cursor: grab; transition: box-shadow 0.2s; border-left: 4px solid transparent; }
+    .kanban-board { display: flex; gap: 1.25rem; overflow-x: auto; padding-bottom: 1rem; min-height: 420px; align-items: flex-start; }
+    .kanban-column { flex: 0 0 300px; background: rgba(255,255,255,0.8); border-radius: 12px; padding: 0.75rem; min-height: 140px; transition: all 0.2s; backdrop-filter: blur(8px); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .kanban-column.drag-over { background: rgba(147,197,253,0.4); box-shadow: 0 4px 16px rgba(59,130,246,0.2); }
+    .kanban-column-header { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; }
+    .kanban-column-header.todo { background: rgba(59,130,246,0.15); color: #1d4ed8; }
+    .kanban-column-header.inprogress { background: rgba(245,158,11,0.2); color: #b45309; }
+    .kanban-column-header.done { background: rgba(34,197,94,0.15); color: #15803d; }
+    .kanban-column-header.cancelled { background: rgba(100,116,139,0.15); color: #475569; }
+    .column-count { background: rgba(0,0,0,0.08); padding: 0.15rem 0.6rem; border-radius: 12px; font-size: 0.8rem; }
+    .kanban-column-cards { display: flex; flex-direction: column; gap: 0.6rem; min-height: 80px; }
+    .kanban-card { background: #fff; border-radius: 10px; padding: 0.85rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); cursor: grab; transition: all 0.2s; border-left: 4px solid transparent; }
     .kanban-card:active { cursor: grabbing; }
-    .kanban-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+    .kanban-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); transform: translateY(-1px); }
     .kanban-card.dragging { opacity: 0.5; }
-    .kanban-card.Low { border-left-color: #97a0af; }
-    .kanban-card.Medium { border-left-color: #0052cc; }
-    .kanban-card.High { border-left-color: #ffab00; }
-    .kanban-card.Urgent { border-left-color: #de350b; }
+    .kanban-card.Low { border-left-color: #94a3b8; }
+    .kanban-card.Medium { border-left-color: #3b82f6; }
+    .kanban-card.High { border-left-color: #f59e0b; }
+    .kanban-card.Urgent { border-left-color: #ef4444; }
     .card-content { margin-bottom: 0.5rem; }
-    .card-title { margin: 0 0 0.25rem 0; font-size: 0.95rem; font-weight: 600; color: #172b4d; line-height: 1.3; }
-    .card-desc { margin: 0 0 0.5rem 0; font-size: 0.8rem; color: #6b778c; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-title { margin: 0 0 0.25rem 0; font-size: 1rem; font-weight: 600; color: #0f172a; line-height: 1.35; }
+    .card-desc { margin: 0 0 0.5rem 0; font-size: 0.8rem; color: #64748b; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .card-meta { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
-    .badge { font-size: 0.7rem; padding: 0.15rem 0.4rem; border-radius: 4px; font-weight: 500; }
-    .badge.Low { background: #dfe1e6; color: #5e6c84; }
-    .badge.Medium { background: #deebff; color: #0052cc; }
-    .badge.High { background: #fff4e6; color: #b57900; }
-    .badge.Urgent { background: #ffebe6; color: #de350b; }
-    .card-due, .card-assignee, .card-subtasks { font-size: 0.75rem; color: #6b778c; display: flex; align-items: center; gap: 0.2rem; }
+    .badge { font-size: 0.7rem; padding: 0.15rem 0.45rem; border-radius: 6px; font-weight: 500; }
+    .badge.Low { background: #f1f5f9; color: #64748b; }
+    .badge.Medium { background: #dbeafe; color: #1d4ed8; }
+    .badge.High { background: #fef3c7; color: #b45309; }
+    .badge.Urgent { background: #fee2e2; color: #dc2626; }
+    .card-due, .card-assignee, .card-subtasks { font-size: 0.75rem; color: #64748b; display: flex; align-items: center; gap: 0.2rem; }
     .card-actions { display: flex; gap: 0.25rem; opacity: 0.7; }
     .card-actions:hover { opacity: 1; }
-    .btn-icon { background: none; border: none; padding: 0.25rem; cursor: pointer; border-radius: 4px; color: #6b778c; }
-    .btn-icon:hover { background: #ebecf0; color: #172b4d; }
-    .btn-icon.Danger:hover { background: #ffebe6; color: #de350b; }
+    .btn-icon { background: none; border: none; padding: 0.25rem; cursor: pointer; border-radius: 6px; color: #94a3b8; }
+    .btn-icon:hover { background: #f1f5f9; color: #0f172a; }
+    .btn-icon.Danger:hover { background: #fee2e2; color: #dc2626; }
 
-    .alert { padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem; }
-    .alert-info { background: #deebff; color: #0052cc; }
-    .alert-danger { background: #ffebe6; color: #de350b; }
-    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1040; }
+    .alert { padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem; }
+    .alert-info { background: #dbeafe; color: #1d4ed8; }
+    .alert-danger { background: #fee2e2; color: #dc2626; }
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,0.5); z-index: 1040; backdrop-filter: blur(4px); }
     .modal-dialog { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 1050; padding: 1rem; }
-    .modal-content { background: #fff; border-radius: 8px; max-width: 500px; width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+    .modal-content { background: #fff; border-radius: 12px; max-width: 500px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
     .modal-content-wide { max-width: 560px; max-height: 90vh; overflow-y: auto; }
     .subtask-list, .remark-list { display: flex; flex-direction: column; gap: 0.5rem; }
     .subtask-row { display: flex; align-items: center; gap: 0.5rem; }
@@ -263,17 +285,21 @@
     .subtask-row .form-control { flex: 1; }
     .remark-row { display: flex; gap: 0.5rem; align-items: flex-start; }
     .remark-row .form-control { flex: 1; }
-    .btn-icon-sm { background: none; border: none; padding: 0.25rem; cursor: pointer; color: #6b778c; font-size: 0.8rem; }
-    .btn-icon-sm:hover { color: #de350b; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid #dfe1e6; }
+    .btn-icon-sm { background: none; border: none; padding: 0.25rem; cursor: pointer; color: #94a3b8; font-size: 0.8rem; }
+    .btn-icon-sm:hover { color: #dc2626; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; }
     .modal-header h2 { margin: 0; font-size: 1.25rem; }
-    .modal-body { padding: 1.25rem; }
-    .modal-footer { display: flex; justify-content: flex-end; gap: 0.5rem; padding: 1rem 1.25rem; border-top: 1px solid #dfe1e6; }
+    .modal-body { padding: 1.5rem; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 0.5rem; padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; }
     .btn-close { background: none; border: none; font-size: 1.25rem; cursor: pointer; opacity: 0.5; }
     .btn-close:hover { opacity: 1; }
 </style>
 
 @code {
+    [Parameter]
+    public int ProjectId { get; set; }
+
+    private Project? project;
     private List<TaskItem> tasks = [];
     private bool loading = true;
     private string? error;
@@ -284,12 +310,37 @@
     private TaskFormModel formModel = new();
     private CancellationTokenSource? _searchCts;
     private TaskStatus? _dragOverColumn;
-    private DotNetObjectReference<Tasks>? _dotNetRef;
+    private DotNetObjectReference<ProjectTasks>? _dotNetRef;
     private bool _dragDropInitialized;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadTasks();
+        await LoadProjectAndTasks();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (project?.Id != ProjectId)
+            await LoadProjectAndTasks();
+    }
+
+    private async Task LoadProjectAndTasks()
+    {
+        loading = true;
+        error = null;
+        StateHasChanged();
+        try
+        {
+            project = await ProjectApi.GetProjectAsync(ProjectId);
+            if (project != null)
+                await LoadTasks();
+        }
+        catch { project = null; }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -330,25 +381,17 @@
 
     private async Task LoadTasks()
     {
-        loading = true;
-        error = null;
-        StateHasChanged();
-
         try
         {
             var priority = string.IsNullOrEmpty(priorityFilter) ? null : (TaskPriority?)int.Parse(priorityFilter);
-            tasks = await TaskApi.GetTasksAsync(null, priority, string.IsNullOrWhiteSpace(searchTerm) ? null : searchTerm);
+            tasks = await TaskApi.GetTasksAsync(ProjectId, null, priority, string.IsNullOrWhiteSpace(searchTerm) ? null : searchTerm);
         }
         catch (Exception ex)
         {
             if (!TaskApi.IsUsingFallback)
                 error = $"Failed to load tasks. Error: {ex.Message}";
         }
-        finally
-        {
-            loading = false;
-            StateHasChanged();
-        }
+        StateHasChanged();
     }
 
     private async Task OnSearchInput()
@@ -424,7 +467,7 @@
 
     private async Task SaveTask()
     {
-        if (string.IsNullOrWhiteSpace(formModel.Title)) return;
+        if (string.IsNullOrWhiteSpace(formModel.Title) || project == null) return;
 
         try
         {
@@ -440,7 +483,7 @@
             else
             {
                 await TaskApi.CreateTaskAsync(new CreateTaskRequest(
-                    formModel.Title, formModel.Description, formModel.Priority, formModel.Status, formModel.DueDate,
+                    ProjectId, formModel.Title, formModel.Description, formModel.Priority, formModel.Status, formModel.DueDate,
                     string.IsNullOrWhiteSpace(formModel.Assignee) ? null : formModel.Assignee, subtasks, remarks));
             }
             CloseModal();

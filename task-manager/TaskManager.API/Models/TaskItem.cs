@@ -13,6 +13,8 @@ public class TaskItem
     public string? Assignee { get; set; }
     public string? SubtasksJson { get; set; }
     public string? RemarksJson { get; set; }
+    public int ProjectId { get; set; }
+    public Project? Project { get; set; }
 }
 
 public enum TaskPriority

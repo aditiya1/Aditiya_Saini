@@ -1,0 +1,190 @@
+@page "/projects"
+@page "/"
+@rendermode InteractiveServer
+@inject ProjectApiService ProjectApi
+
+<PageTitle>Projects - Task Manager</PageTitle>
+
+<div class="projects-page">
+    <header class="projects-header">
+        <div class="projects-header-content">
+            <h1>Projects</h1>
+            <p class="subtitle">Organize your work. Create a project to get started.</p>
+            <button class="btn btn-primary" @onclick="OpenCreateModal">
+                <span class="bi bi-plus-lg"></span> New Project
+            </button>
+        </div>
+    </header>
+
+    @if (loading)
+    {
+        <div class="loading">Loading projects...</div>
+    }
+    else if (!projects.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-icon">
+                <span class="bi bi-folder2-open"></span>
+            </div>
+            <h3>No projects yet</h3>
+            <p>Create your first project to start organizing tasks.</p>
+            <button class="btn btn-primary" @onclick="OpenCreateModal">
+                <span class="bi bi-plus-lg"></span> Create Project
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="project-grid">
+            @foreach (var project in projects)
+            {
+                <a href="projects/@project.Id" class="project-card" style="--accent: @(project.Color ?? "#2563eb")">
+                    <div class="project-card-accent"></div>
+                    <div class="project-card-body">
+                        <h3>@project.Name</h3>
+                        @if (!string.IsNullOrEmpty(project.Description))
+                        {
+                            <p>@project.Description</p>
+                        }
+                        <div class="project-meta">
+                            <span class="project-task-count"><span class="bi bi-check2-square"></span> @project.TaskCount tasks</span>
+                        </div>
+                    </div>
+                    <span class="bi bi-chevron-right project-arrow"></span>
+                </a>
+            }
+        </div>
+    }
+</div>
+
+@if (showModal)
+{
+    <div class="modal-backdrop" @onclick="CloseModal"></div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Project</h2>
+                <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close"></button>
+            </div>
+            <EditForm Model="formModel" OnValidSubmit="SaveProject">
+                <DataAnnotationsValidator />
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Project Name</label>
+                        <InputText class="form-control" @bind-Value="formModel.Name" placeholder="My Project" />
+                        <ValidationMessage For="@(() => formModel.Name)" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <InputTextArea class="form-control" @bind-Value="formModel.Description" rows="2" placeholder="Optional" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Color</label>
+                        <InputText class="form-control" @bind-Value="formModel.Color" placeholder="#2563eb" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<style>
+    .projects-page { padding: 2rem 2.5rem; max-width: 1200px; margin: 0 auto; min-height: calc(100vh - 120px); }
+    .projects-header { margin-bottom: 2.5rem; }
+    .projects-header-content h1 { font-size: 2rem; font-weight: 700; color: #0f172a; margin: 0 0 0.5rem 0; }
+    .subtitle { color: #64748b; font-size: 1rem; margin: 0 0 1.5rem 0; }
+    .loading, .empty-state { text-align: center; padding: 4rem 2rem; }
+    .empty-state .empty-icon { font-size: 4rem; color: #94a3b8; margin-bottom: 1rem; }
+    .empty-state h3 { font-size: 1.25rem; margin-bottom: 0.5rem; color: #334155; }
+    .empty-state p { color: #64748b; margin-bottom: 1.5rem; }
+    .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; }
+    .project-card { display: flex; align-items: center; gap: 1rem; padding: 1.25rem; background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); text-decoration: none; color: inherit; transition: all 0.2s; border-left: 4px solid var(--accent); }
+    .project-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); transform: translateY(-2px); }
+    .project-card-accent { display: none; }
+    .project-card-body { flex: 1; min-width: 0; }
+    .project-card-body h3 { margin: 0 0 0.25rem 0; font-size: 1.1rem; font-weight: 600; color: #0f172a; }
+    .project-card-body p { margin: 0 0 0.5rem 0; font-size: 0.875rem; color: #64748b; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .project-meta { font-size: 0.8rem; color: #94a3b8; }
+    .project-task-count { display: inline-flex; align-items: center; gap: 0.3rem; }
+    .project-arrow { color: #cbd5e1; font-size: 1.25rem; }
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1040; }
+    .modal-dialog { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 1050; padding: 1rem; }
+    .modal-content { background: #fff; border-radius: 12px; max-width: 440px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; }
+    .modal-header h2 { margin: 0; font-size: 1.25rem; }
+    .modal-body { padding: 1.5rem; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 0.5rem; padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; }
+    .btn-close { background: none; border: none; font-size: 1.25rem; cursor: pointer; opacity: 0.6; }
+    .btn-close:hover { opacity: 1; }
+    .btn-primary { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; border: none; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; box-shadow: 0 2px 4px rgba(37,99,235,0.3); }
+    .btn-primary:hover { background: linear-gradient(135deg, #1d4ed8, #1e40af); }
+    .btn-secondary { background: #f1f5f9; color: #475569; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; }
+    .btn-secondary:hover { background: #e2e8f0; }
+</style>
+
+@code {
+    private List<Project> projects = [];
+    private bool loading = true;
+    private bool showModal;
+    private ProjectFormModel formModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProjects();
+    }
+
+    private async Task LoadProjects()
+    {
+        loading = true;
+        StateHasChanged();
+        try
+        {
+            projects = await ProjectApi.GetProjectsAsync();
+        }
+        catch
+        {
+            projects = [];
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void OpenCreateModal()
+    {
+        formModel = new ProjectFormModel { Name = "", Description = "", Color = "#2563eb" };
+        showModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+    }
+
+    private async Task SaveProject()
+    {
+        if (string.IsNullOrWhiteSpace(formModel.Name)) return;
+        try
+        {
+            await ProjectApi.CreateProjectAsync(formModel.Name, formModel.Description, formModel.Color);
+            CloseModal();
+            await LoadProjects();
+        }
+        catch { }
+    }
+
+    private class ProjectFormModel
+    {
+        [Required(ErrorMessage = "Name is required")]
+        [MaxLength(100)]
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string Color { get; set; } = "#2563eb";
+    }
+}
