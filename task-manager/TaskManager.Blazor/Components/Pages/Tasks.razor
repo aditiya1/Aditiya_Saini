@@ -15,7 +15,7 @@
 
     <div class="tasks-filters">
         <input type="text" class="form-control search-input" placeholder="Search tasks..."
-               @bind="searchTerm" @bind:event="oninput" @oninput="OnSearchInput" />
+               @bind="searchTerm" @bind:event="oninput" @bind:after="OnSearchInput" />
         <select class="form-select filter-select" @bind="statusFilter" @bind:after="LoadTasks">
             <option value="">All Statuses</option>
             <option value="0">To Do</option>

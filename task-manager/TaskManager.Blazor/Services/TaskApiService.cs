@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using TaskManager.Blazor.Models;
+using TaskStatus = TaskManager.Blazor.Models.TaskStatus;
 
 namespace TaskManager.Blazor.Services;
 
