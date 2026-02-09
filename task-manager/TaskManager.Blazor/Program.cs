@@ -24,9 +24,12 @@ if (string.IsNullOrEmpty(apiBaseUrl))
     else
         apiBaseUrl = "http://localhost:5000";
 }
-builder.Services.AddHttpClient<TaskApiService>(client =>
+var baseUri = apiBaseUrl.TrimEnd('/') + "/";
+builder.Services.AddHttpClient("TaskApi", client => client.BaseAddress = new Uri(baseUri));
+builder.Services.AddScoped<TaskApiService>(sp =>
 {
-    client.BaseAddress = new Uri(apiBaseUrl);
+    var client = sp.GetRequiredService<IHttpClientFactory>().CreateClient("TaskApi");
+    return new TaskApiService(client);
 });
 
 builder.Services.AddRazorComponents()

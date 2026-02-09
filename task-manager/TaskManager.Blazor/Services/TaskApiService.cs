@@ -7,6 +7,12 @@ namespace TaskManager.Blazor.Services;
 public class TaskApiService
 {
     private readonly HttpClient _http;
+    private bool _useFallback;
+    private readonly List<TaskItem> _fallbackTasks = [];
+    private int _nextId = 1;
+    private readonly object _lock = new();
+
+    public bool IsUsingFallback => _useFallback;
 
     public TaskApiService(HttpClient http)
     {
@@ -15,46 +21,172 @@ public class TaskApiService
 
     public async Task<List<TaskItem>> GetTasksAsync(TaskStatus? status = null, TaskPriority? priority = null, string? search = null)
     {
-        var query = new List<string>();
-        if (status.HasValue) query.Add($"status={(int)status.Value}");
-        if (priority.HasValue) query.Add($"priority={(int)priority.Value}");
-        if (!string.IsNullOrWhiteSpace(search)) query.Add($"search={Uri.EscapeDataString(search)}");
+        if (!_useFallback)
+        {
+            try
+            {
+                var query = new List<string>();
+                if (status.HasValue) query.Add($"status={(int)status.Value}");
+                if (priority.HasValue) query.Add($"priority={(int)priority.Value}");
+                if (!string.IsNullOrWhiteSpace(search)) query.Add($"search={Uri.EscapeDataString(search!)}");
 
-        var url = "api/tasks" + (query.Count > 0 ? "?" + string.Join("&", query) : "");
-        var result = await _http.GetFromJsonAsync<List<TaskItem>>(url);
-        return result ?? [];
+                var url = "api/tasks" + (query.Count > 0 ? "?" + string.Join("&", query) : "");
+                var result = await _http.GetFromJsonAsync<List<TaskItem>>(url);
+                return result ?? [];
+            }
+            catch
+            {
+                _useFallback = true;
+            }
+        }
+
+        return GetFallbackTasks(status, priority, search);
     }
 
     public async Task<TaskItem?> GetTaskAsync(int id)
     {
-        return await _http.GetFromJsonAsync<TaskItem>($"api/tasks/{id}");
+        if (!_useFallback)
+        {
+            try
+            {
+                return await _http.GetFromJsonAsync<TaskItem>($"api/tasks/{id}");
+            }
+            catch
+            {
+                _useFallback = true;
+            }
+        }
+
+        return _fallbackTasks.FirstOrDefault(t => t.Id == id);
     }
 
     public async Task<TaskItem?> CreateTaskAsync(CreateTaskRequest request)
     {
-        var response = await _http.PostAsJsonAsync("api/tasks", request);
-        response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<TaskItem>();
+        if (!_useFallback)
+        {
+            try
+            {
+                var response = await _http.PostAsJsonAsync("api/tasks", request);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadFromJsonAsync<TaskItem>();
+            }
+            catch
+            {
+                _useFallback = true;
+            }
+        }
+
+        lock (_lock)
+        {
+            var task = new TaskItem
+            {
+                Id = _nextId++,
+                Title = request.Title,
+                Description = request.Description,
+                Priority = request.Priority ?? TaskPriority.Medium,
+                Status = request.Status ?? TaskStatus.ToDo,
+                CreatedAt = DateTime.UtcNow,
+                DueDate = request.DueDate
+            };
+            _fallbackTasks.Add(task);
+            return task;
+        }
     }
 
     public async Task<TaskItem?> UpdateTaskAsync(int id, UpdateTaskRequest request)
     {
-        var response = await _http.PutAsJsonAsync($"api/tasks/{id}", request);
-        response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<TaskItem>();
+        if (!_useFallback)
+        {
+            try
+            {
+                var response = await _http.PutAsJsonAsync($"api/tasks/{id}", request);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadFromJsonAsync<TaskItem>();
+            }
+            catch
+            {
+                _useFallback = true;
+            }
+        }
+
+        lock (_lock)
+        {
+            var task = _fallbackTasks.FirstOrDefault(t => t.Id == id);
+            if (task == null) return null;
+
+            if (request.Title != null) task.Title = request.Title;
+            if (request.Description != null) task.Description = request.Description;
+            if (request.Priority != null) task.Priority = request.Priority.Value;
+            if (request.Status != null) task.Status = request.Status.Value;
+            task.DueDate = request.DueDate;
+            if (request.Status == TaskStatus.Done) task.CompletedAt = DateTime.UtcNow;
+            else if (request.Status != null) task.CompletedAt = null;
+            return task;
+        }
     }
 
-    public async Task<TaskItem?> UpdateStatusAsync(int id, TaskStatus status)
+    public async Task UpdateStatusAsync(int id, TaskStatus status)
     {
-        var response = await _http.PatchAsJsonAsync($"api/tasks/{id}/status", new { status });
-        response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<TaskItem>();
+        if (!_useFallback)
+        {
+            try
+            {
+                var response = await _http.PatchAsJsonAsync($"api/tasks/{id}/status", new { status });
+                response.EnsureSuccessStatusCode();
+                return;
+            }
+            catch
+            {
+                _useFallback = true;
+            }
+        }
+
+        lock (_lock)
+        {
+            var task = _fallbackTasks.FirstOrDefault(t => t.Id == id);
+            if (task != null)
+            {
+                task.Status = status;
+                task.CompletedAt = status == TaskStatus.Done ? DateTime.UtcNow : null;
+            }
+        }
     }
 
     public async Task DeleteTaskAsync(int id)
     {
-        var response = await _http.DeleteAsync($"api/tasks/{id}");
-        response.EnsureSuccessStatusCode();
+        if (!_useFallback)
+        {
+            try
+            {
+                var response = await _http.DeleteAsync($"api/tasks/{id}");
+                response.EnsureSuccessStatusCode();
+                return;
+            }
+            catch
+            {
+                _useFallback = true;
+            }
+        }
+
+        lock (_lock)
+        {
+            _fallbackTasks.RemoveAll(t => t.Id == id);
+        }
+    }
+
+    private List<TaskItem> GetFallbackTasks(TaskStatus? status, TaskPriority? priority, string? search)
+    {
+        var list = _fallbackTasks.AsEnumerable();
+        if (status.HasValue) list = list.Where(t => t.Status == status.Value);
+        if (priority.HasValue) list = list.Where(t => t.Priority == priority.Value);
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.ToLower();
+            list = list.Where(t =>
+                t.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                (t.Description != null && t.Description.Contains(term, StringComparison.OrdinalIgnoreCase)));
+        }
+        return list.OrderByDescending(t => t.CreatedAt).ToList();
     }
 }
 

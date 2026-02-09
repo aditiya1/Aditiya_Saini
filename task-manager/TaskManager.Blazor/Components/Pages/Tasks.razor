@@ -33,13 +33,17 @@
         <button class="btn btn-outline-secondary" @onclick="LoadTasks">Refresh</button>
     </div>
 
+    @if (TaskApi.IsUsingFallback)
+    {
+        <div class="alert alert-info mb-3">Demo mode: API unavailable. Tasks are stored in memory for this session.</div>
+    }
+    @if (error != null)
+    {
+        <div class="alert alert-danger mb-3">@error</div>
+    }
     @if (loading)
     {
         <div class="loading">Loading tasks...</div>
-    }
-    else if (error != null)
-    {
-        <div class="alert alert-danger">@error</div>
     }
     else if (!tasks.Any())
     {
@@ -210,7 +214,8 @@
         }
         catch (Exception ex)
         {
-            error = $"Failed to load tasks. Error: {ex.Message}";
+            if (!TaskApi.IsUsingFallback)
+                error = $"Failed to load tasks. Error: {ex.Message}";
         }
         finally
         {
