@@ -43,7 +43,6 @@ const Recommendations = () => {
               transition={{ duration: 0.5, delay: index * 0.15 }}
               className="recommendation-card"
             >
-              <p className="recommendation-quote">{rec.quote}</p>
               <div className="recommendation-author">
                 <div className="recommendation-author-info">
                   <span className="recommendation-name">{rec.name}</span>
@@ -53,6 +52,7 @@ const Recommendations = () => {
                   </span>
                 </div>
               </div>
+              <p className="recommendation-quote">{rec.quote}</p>
             </motion.article>
           ))}
         </div>

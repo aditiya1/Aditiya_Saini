@@ -26,19 +26,18 @@
   box-shadow: 0 10px 30px rgba(102, 126, 234, 0.12);
 }
 
+.recommendation-author {
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--dark-tertiary);
+}
+
 .recommendation-quote {
   color: var(--text-primary);
   font-size: 1rem;
   line-height: 1.7;
-  margin: 0 0 1.5rem 0;
+  margin: 0;
   white-space: pre-line;
-  flex: 1;
-}
-
-.recommendation-author {
-  margin-top: auto;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--dark-tertiary);
 }
 
 .recommendation-author-info {
