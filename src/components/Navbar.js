@@ -15,7 +15,7 @@ const Navbar = () => {
       
       // Only track active section on home page
       if (location.pathname === '/') {
-        const sections = ['home', 'about', 'experience', 'education', 'skills', 'certifications', 'projects', 'contact'];
+        const sections = ['home', 'about', 'experience', 'education', 'skills', 'projects', 'certifications', 'contact'];
         const scrollPosition = window.scrollY + 100;
 
         for (const section of sections) {
@@ -63,8 +63,8 @@ const Navbar = () => {
     { id: 'experience', label: 'Experience' },
     { id: 'education', label: 'Education' },
     { id: 'skills', label: 'Skills' },
-    { id: 'certifications', label: 'Certifications' },
     { id: 'projects', label: 'Projects' },
+    { id: 'certifications', label: 'Certifications' },
     { id: 'contact', label: 'Contact' }
   ];
 

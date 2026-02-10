@@ -6,46 +6,19 @@ const Skills = () => {
   const skillCategories = [
     {
       category: 'Frontend Development',
-      skills: [
-        { name: 'HTML', level: 95 },
-        { name: 'CSS', level: 90 },
-        { name: 'JavaScript', level: 90 },
-        { name: 'React', level: 85 },
-        { name: 'Bootstrap', level: 85 },
-        { name: 'Responsive Design', level: 90 }
-      ]
+      skills: ['HTML', 'CSS', 'JavaScript', 'React', 'Bootstrap', 'Responsive Design']
     },
     {
       category: 'Backend & Languages',
-      skills: [
-        { name: 'PHP', level: 85 },
-        { name: 'Python', level: 80 },
-        { name: 'Java', level: 75 },
-        { name: 'SQL', level: 85 },
-        { name: 'Dart', level: 70 }
-      ]
+      skills: ['PHP', 'Python', 'Java', 'SQL', 'Dart']
     },
     {
       category: 'Tools & Technologies',
-      skills: [
-        { name: 'Git & GitHub', level: 90 },
-        { name: 'Docker', level: 80 },
-        { name: 'WordPress', level: 85 },
-        { name: 'MySQL', level: 85 },
-        { name: 'AWS', level: 75 },
-        { name: 'GCP', level: 75 }
-      ]
+      skills: ['Git & GitHub', 'Docker', 'WordPress', 'MySQL', 'AWS', 'GCP']
     },
     {
       category: 'AI & Other',
-      skills: [
-        { name: 'OpenAI Integration', level: 85 },
-        { name: 'AI Tools', level: 85 },
-        { name: 'Figma', level: 80 },
-        { name: 'JIRA', level: 85 },
-        { name: 'Agile Methodologies', level: 90 },
-        { name: 'Unit Testing', level: 80 }
-      ]
+      skills: ['OpenAI Integration', 'AI Tools', 'Figma', 'JIRA', 'Agile Methodologies', 'Unit Testing']
     }
   ];
 
@@ -73,30 +46,18 @@ const Skills = () => {
               className="skill-category"
             >
               <h3 className="category-title">{category.category}</h3>
-              <div className="skills-list">
+              <div className="skills-tags">
                 {category.skills.map((skill, skillIndex) => (
-                  <motion.div
+                  <motion.span
                     key={skillIndex}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: (catIndex * 0.1) + (skillIndex * 0.05) }}
-                    className="skill-item"
+                    transition={{ duration: 0.3, delay: (catIndex * 0.05) + (skillIndex * 0.03) }}
+                    className="skill-tag"
                   >
-                    <div className="skill-header">
-                      <span className="skill-name">{skill.name}</span>
-                      <span className="skill-percentage">{skill.level}%</span>
-                    </div>
-                    <div className="skill-bar">
-                      <motion.div
-                        className="skill-progress"
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${skill.level}%` }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1, delay: (catIndex * 0.1) + (skillIndex * 0.05) }}
-                      ></motion.div>
-                    </div>
-                  </motion.div>
+                    {skill}
+                  </motion.span>
                 ))}
               </div>
             </motion.div>
