@@ -5,8 +5,8 @@ import About from '../components/About';
 import Experience from '../components/Experience';
 import Education from '../components/Education';
 import Skills from '../components/Skills';
-import Certifications from '../components/Certifications';
 import Projects from '../components/Projects';
+import Recommendations from '../components/Recommendations';
 import Contact from '../components/Contact';
 
 function Home() {
@@ -30,7 +30,7 @@ function Home() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['home', 'about', 'experience', 'education', 'skills', 'projects', 'certifications', 'contact'];
+      const sections = ['home', 'about', 'experience', 'education', 'skills', 'projects', 'recommendations', 'contact'];
       const scrollPosition = window.scrollY + 100;
 
       for (const section of sections) {
@@ -57,7 +57,7 @@ function Home() {
       <Education />
       <Skills />
       <Projects />
-      <Certifications />
+      <Recommendations />
       <Contact />
     </>
   );

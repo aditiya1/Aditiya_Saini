@@ -10,7 +10,7 @@ const Skills = () => {
     },
     {
       category: 'Backend & Languages',
-      skills: ['PHP', 'Python', 'Java', 'SQL', 'Dart']
+      skills: ['PHP', 'Python', 'Java', 'SQL', 'Dart', 'ASP .NET']
     },
     {
       category: 'Tools & Technologies',
