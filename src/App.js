@@ -5,11 +5,13 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import ProjectDetail from './pages/ProjectDetail';
 import Chatbot from './components/Chatbot';
+import SlimeBackground from './components/SlimeBackground';
 
 function App() {
   return (
     <HashRouter>
       <div className="App">
+        <SlimeBackground />
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />

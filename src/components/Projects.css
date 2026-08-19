@@ -12,6 +12,10 @@
   max-width: 700px;
   margin: 0 auto 3rem;
   line-height: 1.6;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 1rem 1.5rem;
 }
 
 .projects-grid {

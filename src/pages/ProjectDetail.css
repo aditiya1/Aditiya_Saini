@@ -1,8 +1,10 @@
 .project-detail {
   min-height: 100vh;
   padding: 120px 20px 80px;
-  background-color: var(--dark-bg);
+  background-color: transparent;
   color: var(--text-primary);
+  position: relative;
+  z-index: 1;
 }
 
 .project-detail .section-container {

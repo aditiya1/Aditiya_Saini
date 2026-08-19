@@ -5,18 +5,20 @@
 }
 
 :root {
-  --primary-color: #6366f1;
-  --secondary-color: #8b5cf6;
+  --primary-color: #818cf8;
+  --secondary-color: #a78bfa;
   --accent-color: #ec4899;
-  --dark-bg: #ffffff;
-  --dark-secondary: #f8fafc;
-  --dark-tertiary: #e2e8f0;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
+  --dark-bg: transparent;
+  --dark-secondary: rgba(15, 23, 42, 0.62);
+  --dark-tertiary: rgba(148, 163, 184, 0.22);
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
   --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --glass: rgba(15, 23, 42, 0.58);
+  --glass-border: rgba(148, 163, 184, 0.2);
 }
 
 html {
@@ -24,12 +26,11 @@ html {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: 'Space Grotesk', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--dark-bg);
+  background-color: #070b16;
   color: var(--text-primary);
   overflow-x: hidden;
 }
@@ -45,7 +46,7 @@ code {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #0f172a;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -57,4 +58,18 @@ code {
   background: var(--secondary-color);
 }
 
-
+.highlight-card,
+.skill-category,
+.timeline-content,
+.project-card,
+.recommendation-card,
+.education-card,
+.contact-item,
+.contact-form,
+.github-button {
+  background: var(--glass) !important;
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.28);
+}

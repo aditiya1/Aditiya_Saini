@@ -107,11 +107,20 @@
   font-weight: 500;
 }
 
+.contact-info {
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 20px;
+  padding: 2rem;
+}
+
 .form-group input,
 .form-group textarea {
   width: 100%;
   padding: 0.875rem 1rem;
-  background: var(--dark-secondary);
+  background: rgba(2, 6, 23, 0.7);
   border: 1px solid var(--dark-tertiary);
   border-radius: 8px;
   color: var(--text-primary);

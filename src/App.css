@@ -2,6 +2,7 @@
   width: 100%;
   min-height: 100vh;
   position: relative;
+  z-index: 1;
 }
 
 /* Section Styling */
@@ -10,6 +11,8 @@ section {
   padding: 80px 20px;
   position: relative;
   overflow: hidden;
+  background: transparent !important;
+  z-index: 1;
 }
 
 .section-container {
@@ -23,11 +26,11 @@ section {
   font-weight: 700;
   margin-bottom: 3rem;
   text-align: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #f8fafc;
+  -webkit-text-fill-color: #f8fafc;
+  background: none;
   position: relative;
+  letter-spacing: -0.03em;
 }
 
 .section-title::after {
