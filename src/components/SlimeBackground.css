@@ -23,18 +23,8 @@
 
 .slime-background.slime-fallback {
   background:
-    radial-gradient(circle at 18% 22%, rgba(99, 102, 241, 0.28), transparent 42%),
-    radial-gradient(circle at 82% 18%, rgba(168, 85, 247, 0.26), transparent 40%),
-    radial-gradient(circle at 50% 78%, rgba(56, 189, 248, 0.22), transparent 46%),
-    linear-gradient(180deg, #070b16 0%, #111827 100%);
-  animation: slime-shift 18s ease-in-out infinite alternate;
-}
-
-@keyframes slime-shift {
-  from {
-    filter: hue-rotate(0deg);
-  }
-  to {
-    filter: hue-rotate(28deg);
-  }
+    radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.18), transparent 42%),
+    repeating-linear-gradient(0deg, transparent 0 28px, rgba(56, 189, 248, 0.06) 28px 29px),
+    repeating-linear-gradient(90deg, transparent 0 28px, rgba(56, 189, 248, 0.06) 28px 29px),
+    linear-gradient(180deg, #070b16 0%, #0b1220 100%);
 }

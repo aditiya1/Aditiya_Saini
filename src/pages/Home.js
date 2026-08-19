@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Hero from '../components/Hero';
 import About from '../components/About';
+import AiWorkspace from '../components/AiWorkspace';
 import Experience from '../components/Experience';
 import Education from '../components/Education';
 import Skills from '../components/Skills';
@@ -53,6 +54,7 @@ function Home() {
     <>
       <Hero />
       <About />
+      <AiWorkspace />
       <Experience />
       <Education />
       <Skills />
