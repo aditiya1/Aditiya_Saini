@@ -25,7 +25,8 @@ const Projects = () => {
           transition={{ duration: 0.5, delay: 0.05 }}
           className="projects-intro"
         >
-          Two shipped systems: a RAG assistant over this portfolio, and a live
+          Three shipped systems: a multi-tenant invoicing platform for
+          Australian tradies, a RAG assistant over this portfolio, and a live
           task manager on ASP.NET and Blazor.
         </motion.p>
 

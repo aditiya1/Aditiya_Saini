@@ -1,6 +1,37 @@
 import chatbotLogo from '../assets/chatbot-logo.png';
+import tradieInvoicingImg from '../assets/tradie-invoicing.jpg';
 
 export const projects = [
+  {
+    id: 'tradie-invoicing',
+    title: 'Job Pack — Invoicing for Australian Tradies',
+    shortDescription: 'A multi-tenant invoicing platform for Australian sole traders — set up your business once, then raise a compliant tax invoice and email it as a PDF in minutes.',
+    fullDescription: 'I built a full-stack invoicing tool for Australian tradies (electricians, plumbers, builders) who need to send compliant tax invoices without wrestling with generic templates. ABNs are validated against the ATO\'s real weighted-modulus-89 checksum rather than a naive digit count, and every generated PDF carries the fields the ATO requires for a valid tax invoice — "Tax Invoice," the seller\'s ABN, a sequential invoice number, and GST per line. Invoice numbers increment per business inside a database transaction, so concurrent invoices can never collide.',
+    image: tradieInvoicingImg,
+    technologies: [
+      'Next.js (App Router)',
+      'TypeScript',
+      'PostgreSQL (Supabase)',
+      'Prisma',
+      'Auth.js',
+      'Resend',
+      '@react-pdf/renderer',
+      'Tailwind CSS'
+    ],
+    githubUrl: 'https://github.com/aditiya1/tradie-invoicing',
+    features: [
+      'ABN validation against the ATO\'s real weighted-modulus-89 checksum',
+      'Multi-tenant data model — every query scoped by business, isolation built into the schema',
+      'Customer CRUD, editable at any time',
+      'Invoice builder with line items and live GST/total calculation',
+      'Four selectable PDF invoice templates, each still lets you add or remove custom fields',
+      'Server-rendered, ATO-compliant tax invoice PDFs via @react-pdf/renderer',
+      'Email delivery via Resend, with per-invoice sent/delivered status shown in the dashboard',
+      'Business, customer, and invoice details all editable before an invoice is sent',
+      'Atomic, per-business sequential invoice numbering — safe under concurrent requests',
+      'Auth.js email magic-link authentication, no passwords to manage'
+    ]
+  },
   {
     id: 'ai-chatbot-rag',
     title: 'AI Chatbot with RAG Pipeline',

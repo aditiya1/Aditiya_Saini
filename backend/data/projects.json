@@ -1,6 +1,22 @@
 {
   "projects": [
     {
+      "title": "Job Pack — Invoicing for Australian Tradies",
+      "description": "A multi-tenant invoicing platform for Australian sole traders. A tradie sets up their business once (ABN, bank details, invoice template), then raises a compliant tax invoice against a customer and emails it as a PDF. ABNs are validated against the ATO's real weighted-modulus-89 checksum, generated PDFs carry every field the ATO requires for a valid tax invoice, and invoice numbers increment per business inside a database transaction so concurrent invoices never collide.",
+      "technologies": ["Next.js (App Router)", "TypeScript", "PostgreSQL (Supabase)", "Prisma", "Auth.js", "Resend", "@react-pdf/renderer", "Tailwind CSS"],
+      "features": [
+        "ABN validation against the ATO's real weighted-modulus-89 checksum",
+        "Multi-tenant data model with business-scoped isolation built into the schema",
+        "Customer CRUD, editable at any time",
+        "Invoice builder with line items and live GST/total calculation",
+        "Four selectable PDF invoice templates with custom, addable/removable fields",
+        "Server-rendered, ATO-compliant tax invoice PDFs via @react-pdf/renderer",
+        "Email delivery via Resend with per-invoice sent/delivered status",
+        "Atomic, per-business sequential invoice numbering"
+      ],
+      "githubUrl": "https://github.com/aditiya1/tradie-invoicing"
+    },
+    {
       "title": "AI Chatbot with RAG Pipeline",
       "description": "An intelligent chatbot powered by Retrieval-Augmented Generation that answers questions about my portfolio, projects, resume, and contact information. The system uses semantic search to retrieve relevant information from my knowledge base and generates natural language responses using OpenAI's GPT models.",
       "technologies": ["React", "Python", "FastAPI", "OpenAI API", "ChromaDB", "Vector Embeddings", "RAG", "Semantic Search", "Docker"],
