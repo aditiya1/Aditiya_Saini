@@ -39,3 +39,8 @@ backend/__pycache__/
 backend/**/__pycache__/
 backend/*.pyc
 backend/.python-version
+
+# Local agent-tooling state (machine-specific, not app code)
+.claude/
+.cursor/
+.impeccable/

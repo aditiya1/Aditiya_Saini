@@ -63,7 +63,6 @@ function createGrid() {
 function createDesk() {
   const group = new THREE.Group();
   const desk = darkMat({ color: 0x101114, roughness: 0.18, metalness: 0.7 });
-  const accent = glowMat(0x67e8f9, 1.6);
 
   addBox(group, 2.7, 0.06, 1.15, desk, 0.18, 0.92, 0.05);
   const waterfall = addBox(group, 0.08, 1.0, 1.15, desk, -1.13, 0.46, 0.05);
@@ -298,14 +297,33 @@ function addTrackSegment(parent, a, b) {
   parent.add(mesh);
 }
 
+function reversePath(path) {
+  return path.slice().reverse();
+}
+
+function segmentKey(a, b) {
+  const p1 = `${a.x.toFixed(2)},${a.z.toFixed(2)}`;
+  const p2 = `${b.x.toFixed(2)},${b.z.toFixed(2)}`;
+  return p1 < p2 ? `${p1}|${p2}` : `${p2}|${p1}`;
+}
+
 function createArrow() {
   const group = new THREE.Group();
   const mat = glowMat(0xa5f3fc, 2.4);
-  const cone = new THREE.Mesh(new THREE.ConeGeometry(0.055, 0.14, 4), mat);
+  const cone = new THREE.Mesh(new THREE.ConeGeometry(0.028, 0.07, 4), mat);
   cone.rotation.x = Math.PI / 2;
   group.add(cone);
   return group;
 }
+
+const PIPELINE_LINKS = [
+  ['TRAIN', 'STORE'],
+  ['EMBED', 'QUERY'],
+  ['QUERY', 'STORE'],
+  ['TRAIN', 'WORKS'],
+  ['WORKS', 'DEPLOY'],
+  ['SKILLS', 'DEPLOY'],
+];
 
 const STATIONS = [
   { pos: [-3.4, -2.4], label: 'TRAIN', kind: 'console' },
@@ -383,30 +401,62 @@ const AiWorkspace = () => {
     const hubPoint = { x: 0, z: 0 };
     const nodes = STATIONS.map((station) => {
       const node = createStation(station.pos[0], station.pos[1], station.label, station.kind);
+      node.userData.label = station.label;
       scene.add(node);
       return node;
     });
 
+    const byLabel = {};
+    nodes.forEach((node) => {
+      byLabel[node.userData.label] = { x: node.position.x, z: node.position.z };
+    });
+
+    const connections = [];
+    nodes.forEach((node) => {
+      connections.push({ from: hubPoint, to: { x: node.position.x, z: node.position.z } });
+    });
+    const around = [...nodes].sort(
+      (a, b) => Math.atan2(a.position.z, a.position.x) - Math.atan2(b.position.z, b.position.x)
+    );
+    around.forEach((node, i) => {
+      const next = around[(i + 1) % around.length];
+      connections.push({
+        from: { x: node.position.x, z: node.position.z },
+        to: { x: next.position.x, z: next.position.z },
+      });
+    });
+    PIPELINE_LINKS.forEach(([a, b]) => {
+      if (byLabel[a] && byLabel[b]) connections.push({ from: byLabel[a], to: byLabel[b] });
+    });
+
     const tracks = new THREE.Group();
     scene.add(tracks);
-    const paths = nodes.map((node) => {
-      const path = manhattanPath(hubPoint, { x: node.position.x, z: node.position.z });
+    const seen = new Set();
+    const paths = [];
+    connections.forEach((link) => {
+      const path = manhattanPath(link.from, link.to);
+      paths.push(path);
       for (let i = 0; i < path.length - 1; i += 1) {
+        const key = segmentKey(path[i], path[i + 1]);
+        if (seen.has(key)) continue;
+        seen.add(key);
         addTrackSegment(tracks, path[i], path[i + 1]);
       }
-      return path;
     });
 
     const arrows = [];
-    const arrowsPerPath = isMobile ? 2 : 3;
-    paths.forEach((path, pathIndex) => {
-      for (let i = 0; i < arrowsPerPath; i += 1) {
+    const addArrows = (path, count, extraOffset) => {
+      for (let i = 0; i < count; i += 1) {
         const arrow = createArrow();
         arrow.userData.path = path;
-        arrow.userData.offset = (i / arrowsPerPath) + pathIndex * 0.05;
+        arrow.userData.offset = i / count + extraOffset;
         scene.add(arrow);
         arrows.push(arrow);
       }
+    };
+    paths.forEach((path, index) => {
+      addArrows(path, isMobile ? 1 : 2, index * 0.04);
+      addArrows(reversePath(path), 1, 0.5 + index * 0.03);
     });
 
     const mouse = { x: 0, y: 0 };
@@ -490,10 +540,18 @@ const AiWorkspace = () => {
     <section id="workspace" className="workspace-section" aria-label="AI workspace visualization">
       <div className="section-container">
         <h2 className="section-title">Building with AI</h2>
-        <p className="workspace-copy">
-          Top view: the desk is the hub. Commands travel along the grid to nearby AI systems.
+        <p className="section-lede">
+          The path behind the assistant on this page: embed the work, store it,
+          retrieve what matters, then answer. Stations below are that loop, not decoration.
         </p>
         <div className="workspace-stage" ref={mountRef} />
+        <ul className="workspace-legend">
+          <li><span>Train</span> Call and ops data from real internal tools</li>
+          <li><span>Embed</span> Chunking and vectors for semantic search</li>
+          <li><span>Store</span> Chroma knowledge base for this site</li>
+          <li><span>Query</span> Retrieve, then generate with citations</li>
+          <li><span>Deploy</span> Docker, live demos, the chatbot in the corner</li>
+        </ul>
       </div>
     </section>
   );

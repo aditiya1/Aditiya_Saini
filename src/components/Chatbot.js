@@ -89,7 +89,7 @@ const Chatbot = () => {
         onClick={() => setIsOpen(!isOpen)}
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        whileHover={{ scale: 1.1 }}
+        whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.9 }}
         aria-label="Open chatbot"
       >

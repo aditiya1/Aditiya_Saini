@@ -5,10 +5,8 @@
   z-index: 1;
 }
 
-/* Section Styling */
 section {
-  min-height: 100vh;
-  padding: 80px 20px;
+  padding: 6.5rem 1.5rem 5rem;
   position: relative;
   overflow: hidden;
   background: transparent !important;
@@ -16,104 +14,31 @@ section {
 }
 
 .section-container {
-  max-width: 1200px;
+  max-width: 1120px;
   margin: 0 auto;
   width: 100%;
 }
 
 .section-title {
-  font-size: 3rem;
-  font-weight: 700;
-  margin-bottom: 3rem;
-  text-align: center;
-  color: #f8fafc;
-  -webkit-text-fill-color: #f8fafc;
-  background: none;
-  position: relative;
-  letter-spacing: -0.03em;
+  font-size: clamp(1.85rem, 3.4vw, 2.6rem);
+  font-weight: 600;
+  margin: 0 0 1.75rem;
+  text-align: left;
+  color: var(--paper);
+  letter-spacing: -0.035em;
+  line-height: 1.15;
 }
 
-.section-title::after {
-  content: '';
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 4px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 2px;
+.section-lede {
+  max-width: 62ch;
+  margin: -0.5rem 0 2.25rem;
+  color: var(--paper);
+  font-size: 1.05rem;
+  line-height: 1.65;
 }
 
-/* Animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.fade-in-up {
-  animation: fadeInUp 0.8s ease-out;
-}
-
-.fade-in {
-  animation: fadeIn 1s ease-out;
-}
-
-.slide-in-left {
-  animation: slideInLeft 0.8s ease-out;
-}
-
-.slide-in-right {
-  animation: slideInRight 0.8s ease-out;
-}
-
-/* Responsive Design */
 @media (max-width: 768px) {
   section {
-    padding: 60px 15px;
-  }
-
-  .section-title {
-    font-size: 2rem;
-    margin-bottom: 2rem;
+    padding: 4.5rem 1.15rem 3.5rem;
   }
 }
-
-

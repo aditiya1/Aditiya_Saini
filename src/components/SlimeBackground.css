@@ -4,14 +4,14 @@
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
+  opacity: 0.14;
 }
 
 .slime-background::after {
   content: '';
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(ellipse at center, transparent 30%, rgba(7, 11, 22, 0.45) 100%);
+  background: radial-gradient(ellipse at center, transparent 20%, var(--ink) 78%);
   pointer-events: none;
 }
 
@@ -22,9 +22,6 @@
 }
 
 .slime-background.slime-fallback {
-  background:
-    radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.18), transparent 42%),
-    repeating-linear-gradient(0deg, transparent 0 28px, rgba(56, 189, 248, 0.06) 28px 29px),
-    repeating-linear-gradient(90deg, transparent 0 28px, rgba(56, 189, 248, 0.06) 28px 29px),
-    linear-gradient(180deg, #070b16 0%, #0b1220 100%);
+  opacity: 1;
+  background: var(--ink);
 }

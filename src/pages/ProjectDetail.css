@@ -33,13 +33,11 @@
 }
 
 .project-title {
-  font-size: 3.5rem;
-  font-weight: 700;
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 600;
   margin-bottom: 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--paper);
+  letter-spacing: -0.035em;
 }
 
 .project-subtitle {
@@ -137,15 +135,13 @@
 .project-link {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  gap: 0.6rem;
+  padding: 0.75rem 1.2rem;
+  background: var(--paper);
+  color: var(--ink);
   text-decoration: none;
-  border-radius: 8px;
+  border-radius: 4px;
   font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
 
 .project-link svg {
